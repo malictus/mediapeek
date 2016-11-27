@@ -7,19 +7,39 @@
         <script src="mediapeek.js"></script>
     </head>
     <body>
-        <h2>MediaPeek</h2>
-        <h4>Choose a file to look inside it</h4>
-        <div id="filechooser">
-            <input type="file" id="thefile" name="thefile" />
-        </div>
-        <br/>
-        <div id="filedisplay">
+        <div id="title">MediaPeek</div>
+        <div id="basicinfo">
             <div class="filefield"><b>File Name:</b> <span id="filename"></span></div>
             <div class="filefield"><b>File Size:</b> <span id="filesize"></span></div>
             <div class="filefield"><b>MIME Type:</b> <span id="filetype"></span></div>
-            <div id="imagedisplay" ></div>
-            <video id="videodisplay" ></video>
-            <div id="ascii"></div>
+        </div>
+        <div id="filechoosearea">
+            <div id="filedroparea"><br/><br/>Drop files here<br/><br/></div>
+            <br/>
+            <div id="filechooser">
+                <input type="file" id="thefile" name="thefile" />
+            </div>
+        </div>
+        <div id="description">
+            MediaPeek allows you to peek inside a media file (audio, video, or image) and view its contents.
+            <ul>
+                <li>Works with any size file.</li>
+                <li>View binary data and embedded chunks.</li>
+                <li>100% safe. Reads files only.</li>
+                <li>Upoads nothing to server.</li>
+            </ul>
+            Supported Formats: None yet!
+        </div>
+        <div id="filedisplay">
+            NO FILE LOADED
+            <video id="videodisplay"></video>
+        </div>
+        <div id="controls"><br/>CONTROLS GO HERE<br/></div>
+        <div id="tree"><br/>TREE GOES HERE<br/></div>
+        <div id="binarydata"><br/>BINARY DATA GOES HERE<br/></div>
+        
+        <div id="footer">
+            Copyright 2016, by James Halliday | <a href="mailto:malictus@gmail.com">Contact</a> | <a href="https://github.com/malictus/mediapeek">Github</a>
         </div>
     </body>
 </html>

@@ -20,18 +20,42 @@ $(function() {
     } else {
         alert('Javascript File API not implemented in this browser. This page may not work properly.');
     }
-    //get file handler listener going
+    //handle file choose button
     $('#thefile').change(function(e) {
-        handleFileSelect(e);
+        handleFileChooserSelect(e);
     });
+    //handle dragging file to drop area
+    var dropZone = document.getElementById('filedroparea');
+    dropZone.addEventListener('dragover', handleDragOver, false);
+    dropZone.addEventListener('drop', handleFileDrag, false);
 });
 
 /***************************************
  * handle file chooser selection event * 
  ***************************************/
-function handleFileSelect(e) {
+function handleFileChooserSelect(e) {
     //for now there will always be only one
     theFile = e.target.files[0];     
+    updateFileDisplay();
+}
+
+/*****************************************
+ * handle dragging a file over drop area * 
+ *****************************************/
+function handleDragOver(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+}
+
+/*****************************************
+ * handle dropping a file in drop area   * 
+ *****************************************/
+function handleFileDrag(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    //assumes one
+    theFile = e.dataTransfer.files[0];
     updateFileDisplay();
 }
 
@@ -59,15 +83,9 @@ function updateBasicInfo() {
 /**************************************
  * Display picture/video/sound player *
  **************************************/
-function updateFileDisplay() {
+function updatePlayer() {
     var thetype = theFile.type;
-    //hide the display panels (in case something was here before)
-    var videoNode = document.getElementById('videodisplay');
-    var pictureNode = document.getElementById('imagedisplay');
-    videoNode.setAttribute("src", "");
-    videoNode.style.visibility = "hidden";
-    videoNode.setAttribute("controls", false);
-    pictureNode.style.visibility = "hidden";
+    var displayNode = document.getElementById('filedisplay');
     //now display if possible
     if (thetype.startsWith("image/")) {
         //display an image
@@ -76,20 +94,28 @@ function updateFileDisplay() {
             var reader = new FileReader();
             reader.onload = function(event) {
                 the_url = event.target.result;
-                pictureNode.innerHTML = "<img class='imgdisplay' src='" + the_url + "' />";
+                displayNode.innerHTML = "<img class='imgdisplay' src='" + the_url + "' />";
             }
             reader.readAsDataURL(theFile);
-            pictureNode.style.visibility = "";
         }
     } else if (thetype.startsWith("video/") || thetype.startsWith("audio/")) {
         //display a video
+        displayNode.innerHTML = "<video id='videodisplay'></video>";
+        var videoNode = document.getElementById('videodisplay');
+        videoNode.setAttribute("src", "");
+        videoNode.style.visibility = "hidden";
+        videoNode.setAttribute("controls", false);
         var canPlay = videoNode.canPlayType(thetype);
         if (canPlay != '') {
             var fileURL = URL.createObjectURL(theFile);
             videoNode.src = fileURL;
             videoNode.style.visibility = "";
             videoNode.setAttribute("controls", true);
-        } 
+        } else {
+             displayNode.innerHTML = "FILE CANNOT BE DISPLAYED";
+        }
+    } else {
+        displayNode.innerHTML = "FILE CANNOT BE DISPLAYED";
     }
 }
 
