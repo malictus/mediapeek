@@ -1,10 +1,12 @@
 <html>
     <head>
         <title>MediaPeek</title>
-        <link rel="stylesheet" type="text/css" href="main.css" />
-        <script src="jquery-3.1.1.min.js"></script>
-        <script src="utilities.js"></script>
-        <script src="mediapeek.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.3/jstree.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.3/themes/default/style.min.css" />
+        <link rel="stylesheet" type="text/css" href="main.css?27112016" />
+        <script src="utilities.js?27112016"></script>
+        <script src="mediapeek.js?27112016"></script>
     </head>
     <body>
         <div id="title">MediaPeek</div>
@@ -34,10 +36,21 @@
             NO FILE LOADED
             <video id="videodisplay"></video>
         </div>
-        <div id="controls"><br/>CONTROLS GO HERE<br/></div>
-        <div id="tree"><br/>TREE GOES HERE<br/></div>
+        <div id="controls">
+            Show numbers here as:
+            <select id="decorhex-controls">
+                <option value="hex">Hexadecimal</option>
+                <option value="dec">Decimal</option>
+            </select>
+            <div id="byteposdisplay">Current byte:</div>
+            <div id="byteposchoose">
+                 Go to byte: 
+                <input type="text" id="bytepostext" value="" />
+                <button type="button" id="byteposbutton">GO</button>
+            </div>
+        </div>
+        <div id="tree"><ul><li>TREE WILL GO HERE</li></ul></div>
         <div id="binarydata"><br/>BINARY DATA GOES HERE<br/></div>
-        
         <div id="footer">
             Copyright 2016, by James Halliday | <a href="mailto:malictus@gmail.com">Contact</a> | <a href="https://github.com/malictus/mediapeek">Github</a>
         </div>

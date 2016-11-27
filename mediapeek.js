@@ -28,6 +28,8 @@ $(function() {
     var dropZone = document.getElementById('filedroparea');
     dropZone.addEventListener('dragover', handleDragOver, false);
     dropZone.addEventListener('drop', handleFileDrag, false);
+    //initiate tree
+    $('#tree').jstree();
 });
 
 /***************************************
