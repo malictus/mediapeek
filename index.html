@@ -10,6 +10,9 @@
     </head>
     <body>
         <div id="title">MediaPeek</div>
+        <div id="header">
+            Copyright 2016, by James Halliday | <a href="mailto:malictus@gmail.com">Contact</a> | <a href="https://github.com/malictus/mediapeek">Github</a>
+        </div>
         <div id="basicinfo">
             <div class="filefield"><b>File Name:</b> <span id="filename"></span></div>
             <div class="filefield"><b>File Size:</b> <span id="filesize"></span></div>
@@ -37,22 +40,32 @@
             <video id="videodisplay"></video>
         </div>
         <div id="controls">
-            Show numbers here as:
+            Show numbers as:
             <select id="decorhex-controls">
                 <option value="hex">Hexadecimal</option>
                 <option value="dec">Decimal</option>
             </select>
+            <br/><br/>
             <div id="byteposdisplay">Current byte:</div>
+            <br/>
             <div id="byteposchoose">
                  Go to byte: 
                 <input type="text" id="bytepostext" value="" />
-                <button type="button" id="byteposbutton">GO</button>
+                <button type="button" id="byteposbutton" disabled>GO</button>
             </div>
+            <br/>
+            Show value as:
+            <select id="decorhex-controls">
+                <option value="8u">8-bit unsigned</option>
+                <option value="8s">8-bit signed</option>
+            </select>
+            <br/>
+            <br/>
+            <div id="currentbytevalue">Value at current byte:</div>
+            <br/>
+            File structure:
+            <div id="tree"><ul><li>TREE WILL GO HERE</li></ul></div>
         </div>
-        <div id="tree"><ul><li>TREE WILL GO HERE</li></ul></div>
         <div id="binarydata"><br/>BINARY DATA GOES HERE<br/></div>
-        <div id="footer">
-            Copyright 2016, by James Halliday | <a href="mailto:malictus@gmail.com">Contact</a> | <a href="https://github.com/malictus/mediapeek">Github</a>
-        </div>
     </body>
 </html>

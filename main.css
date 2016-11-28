@@ -1,6 +1,6 @@
 body {
   font-family: sans-serif;  
-    min-width: 1024px;
+    min-width: 1224px;
 }
 
 #title {
@@ -61,34 +61,26 @@ body {
     padding-right: 5px;
     padding-bottom: 10px;
     border: solid;
-    min-height: 400px;
+    min-height: 320px;
     text-align: center;
 }
 
 #tree {
-    margin-left: 305px;
-    margin-right: 410px;
-    padding-top: 10px;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-bottom: 10px;
-    min-width: 290px;
-    min-height: 400px;
-    height: 400px;
-    text-align: center;
+    margin-top:10px;
 }
 
 #controls {
     width: 300px;
     min-width: 300px;
     float: left;
-    min-height: 400px;
+    min-height: 520px;
     text-align: left;
     padding-left: 6px;
     padding-right: 6px;
     padding-top: 6px;
     padding-bottom: 6px;
     border: solid;
+    overflow: scroll;
 }
 
 #bytepostext {
@@ -102,21 +94,26 @@ body {
 
 .imgdisplay {
     max-width:400px;
-    max-height:400px;
+    max-height:320px;
 }
 
 #binarydata {
-    min-width: 900px;
-    min-height: 400px;
-    width: 900px;
-    height: 400px;
+    margin-left: 305px;
+    margin-right: 410px;
+    padding-top: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 10px;
+    min-width: 500px;
+    min-height: 320px;
+    height: 320px;
     text-align: center;
-    margin: auto;
 }
 
-#footer {
+#header {
     text-align: center;
     font-size: 11;
+    
 }
 
 
