@@ -49,6 +49,7 @@ body {
     padding-right: 5px;
     padding-bottom: 10px;
     border: solid;
+    overflow: scroll;
 }
 
 #filedisplay {

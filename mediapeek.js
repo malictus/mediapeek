@@ -11,6 +11,10 @@ var bytepos = -1;
 
 //the maximum size (in bytes) for displaying images
 var FILESIZE_MAX = 4000000;
+//size of array for reading values
+var ARRAY_SIZE = 1024;
+//the actual array of data
+var theBytes;
 
 /*****************
  * DOM is ready  *
@@ -49,7 +53,14 @@ $(function() {
  ***************************************/
 function handleFileChooserSelect(e) {
     //for now there will always be only one
-    theFile = e.target.files[0];     
+    theFile = e.target.files[0];  
+    if (theFile != null) {
+        if (theFile.size < 1) {
+            bytepos = -1;
+        } else {
+            bytepos = 0;
+        }
+    }
     updateFileDisplay();
 }
 
@@ -70,6 +81,13 @@ function handleFileDrag(e) {
     e.preventDefault();
     //assumes one
     theFile = e.dataTransfer.files[0];
+    if (theFile != null) {
+        if (theFile.size < 1) {
+            bytepos = -1;
+        } else {
+            bytepos = 0;
+        }
+    }
     updateFileDisplay();
 }
 
@@ -80,8 +98,7 @@ function handleBytePosButton() {
     updateBytePos();
 }
 
-/************************************************* UPDATE UI CODE ***********************/
-
+/************************************************* FILE READING CODE ***********************/
 /****************************************************
  * Update byte position in currently open file      *
  ****************************************************/
@@ -96,48 +113,58 @@ function updateBytePos() {
         return;
     }
     bytepos = intval;
-    updateControls();
+    var reader = new FileReader();
+    reader.onloadend = function(evt) {
+        if (evt.target.readyState == FileReader.DONE) {
+            theBytes = new Uint8Array(evt.target.result);
+            updateControls();
+        }
+    };
+    var end = bytepos + ARRAY_SIZE;
+    if (end > theFile.size) {
+        end = theFile.size;
+    }
+    var blob = theFile.slice(bytepos, end);
+    reader.readAsArrayBuffer(blob);
 }
 
+/************************************************* UPDATE UI CODE ***********************/
 /****************************************************
  * A new file has been selected; update the display *
  ****************************************************/
 function updateFileDisplay() {
-    if (theFile != null) {
-        if (theFile.size < 1) {
-            bytepos = -1;
-        } else {
-            bytepos = 0;
-        }
-    }
+    //reset current byte position to zero
+    $('#bytepostext').val(0);
     updateBasicInfo();
     updatePlayer();
-    updateControls();
+    updateBytePos();
 }  
 
 /**************************************
  * Update the control area            *
  **************************************/
 function updateControls() {
-    //TODOS
-    //make a new utility function to display bytes in hex or dec, and include 0x (optional ith hex param) and 0000 padding
-    //make this funtion work here
     if (bytepos == -1) {
         //zero byte file; nothing to do here
         $('#byteposdisplay').html("Current address: N/A &nbsp;&nbsp;&nbsp;&nbsp;");
     } else {
         //display current byte position
         if ($('#hexcheck').is(':checked')) {
-            $('#byteposdisplay').html("Current address: " + bytepos.toString(16));
+            $('#byteposdisplay').html("Current address: 0x" + bytepos.toString(16));
         } else {
             $('#byteposdisplay').html("Current address: " + bytepos);
         }
     }
-    //disable on enabled byte position button
+    //disable or enable byte position button
     if (theFile.size < 2) {
         $('#byteposbutton').attr('disabled','disabled');
     } else {
         $('#byteposbutton').removeAttr('disabled');
+    }
+    //show current value of byte
+    if (theBytes != null) {
+        //TODO read value from drop down, and make a utility function to help with this
+        $('#currentbytevalue').html("Current value: " + theBytes[0]);
     }
 }
 
