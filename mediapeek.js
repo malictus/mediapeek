@@ -6,6 +6,8 @@
 
 //the currently open file
 var theFile;
+//the current byteposition
+var bytepos = -1;
 
 //the maximum size (in bytes) for displaying images
 var FILESIZE_MAX = 4000000;
@@ -30,7 +32,17 @@ $(function() {
     dropZone.addEventListener('drop', handleFileDrag, false);
     //initiate tree
     $('#tree').jstree();
+    //init address shift button
+    $('#byteposbutton').click(function() {
+        handleBytePosButton();
+    });
+    //hex checkbox for byte address
+    $('#hexcheck').change(function() {
+        updateControls();
+    });
 });
+
+/************************************************** EVENT HANDLING ***********************/
 
 /***************************************
  * handle file chooser selection event * 
@@ -61,13 +73,73 @@ function handleFileDrag(e) {
     updateFileDisplay();
 }
 
+/*****************************************
+ * New byte position button was pressed  * 
+ *****************************************/
+function handleBytePosButton() {
+    updateBytePos();
+}
+
+/************************************************* UPDATE UI CODE ***********************/
+
+/****************************************************
+ * Update byte position in currently open file      *
+ ****************************************************/
+function updateBytePos() {
+    if (theFile == null) {
+        return;
+    }
+    var newval = $('#bytepostext').val();
+    var intval = parseInt(newval);
+    if ((intval !== intval) || (intval < 0) || (intval > (theFile.size - 1))) {
+        $('#bytepostext').val(bytepos);
+        return;
+    }
+    bytepos = intval;
+    updateControls();
+}
+
 /****************************************************
  * A new file has been selected; update the display *
  ****************************************************/
 function updateFileDisplay() {
+    if (theFile != null) {
+        if (theFile.size < 1) {
+            bytepos = -1;
+        } else {
+            bytepos = 0;
+        }
+    }
     updateBasicInfo();
     updatePlayer();
+    updateControls();
 }  
+
+/**************************************
+ * Update the control area            *
+ **************************************/
+function updateControls() {
+    //TODOS
+    //make a new utility function to display bytes in hex or dec, and include 0x (optional ith hex param) and 0000 padding
+    //make this funtion work here
+    if (bytepos == -1) {
+        //zero byte file; nothing to do here
+        $('#byteposdisplay').html("Current address: N/A &nbsp;&nbsp;&nbsp;&nbsp;");
+    } else {
+        //display current byte position
+        if ($('#hexcheck').is(':checked')) {
+            $('#byteposdisplay').html("Current address: " + bytepos.toString(16));
+        } else {
+            $('#byteposdisplay').html("Current address: " + bytepos);
+        }
+    }
+    //disable on enabled byte position button
+    if (theFile.size < 2) {
+        $('#byteposbutton').attr('disabled','disabled');
+    } else {
+        $('#byteposbutton').removeAttr('disabled');
+    }
+}
 
 /**************************************
  * Update basic file information text *

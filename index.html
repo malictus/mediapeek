@@ -40,28 +40,21 @@
             <video id="videodisplay"></video>
         </div>
         <div id="controls">
-            Show numbers as:
-            <select id="decorhex-controls">
-                <option value="hex">Hexadecimal</option>
-                <option value="dec">Decimal</option>
-            </select>
-            <br/><br/>
-            <div id="byteposdisplay">Current byte:</div>
+            <br/>
+            <span id="byteposdisplay">Current address:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><input type="checkbox" id="hexcheck" value="Hex" />Hex<br/>
             <br/>
             <div id="byteposchoose">
-                 Go to byte: 
+                Go to address: 
                 <input type="text" id="bytepostext" value="" />
                 <button type="button" id="byteposbutton" disabled>GO</button>
             </div>
             <br/>
-            Show value as:
+            <span id="currentbytevalue">Current value:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
             <select id="decorhex-controls">
                 <option value="8u">8-bit unsigned</option>
                 <option value="8s">8-bit signed</option>
             </select>
             <br/>
-            <br/>
-            <div id="currentbytevalue">Value at current byte:</div>
             <br/>
             File structure:
             <div id="tree"><ul><li>TREE WILL GO HERE</li></ul></div>
