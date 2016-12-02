@@ -11,9 +11,9 @@ var bytepos = -1;
 
 //the maximum size (in bytes) for displaying images
 var FILESIZE_MAX = 4000000;
-//size of array for reading values
-var ARRAY_SIZE = 1024;
-//the actual array of data
+//size of array for reading values for display and computing current value
+var ARRAY_SIZE = 512;
+//the actual ArrayBuffer of data
 var theBytes;
 
 /*****************
@@ -42,6 +42,10 @@ $(function() {
     });
     //hex checkbox for byte address
     $('#hexcheck').change(function() {
+        updateControls();
+    });
+    //current value toggle
+    $('#decorhex-controls').change(function() {
         updateControls();
     });
 });
@@ -116,7 +120,7 @@ function updateBytePos() {
     var reader = new FileReader();
     reader.onloadend = function(evt) {
         if (evt.target.readyState == FileReader.DONE) {
-            theBytes = new Uint8Array(evt.target.result);
+            theBytes = evt.target.result;
             updateControls();
         }
     };
@@ -163,12 +167,17 @@ function updateControls() {
     }
     //show current value of byte
     if (theBytes != null) {
+        var view = new DataView(theBytes);
         if ($('#decorhex-controls').val() === "8u") {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + theBytes[0] + "&nbsp;&nbsp;");
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint8(0) + "&nbsp;&nbsp;");
         } else if ($('#decorhex-controls').val() === "8s") {
-            var w = theBytes[0];
-            //TODO switch to a arraybuffer as the global var; the use a DataView object to read arbitrary values
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + theBytes[0] + "&nbsp;&nbsp;");
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt8(0) + "&nbsp;&nbsp;");
+        } else if ( ($('#decorhex-controls').val() === "16ule") && (bytepos < (theFile.size - 1))) {
+            //16 bit values go here
+        } else if (bytepos < (theFile.size - 3)) {
+            //32 bit values go here
+        } else if (bytepos < (theFile.size - 7)) {
+            //64 bit values go here
         } else {
             $('#currentbytevalue').html("Current value: &nbsp;&nbsp; N/A &nbsp;&nbsp;");
         }
