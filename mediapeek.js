@@ -163,8 +163,15 @@ function updateControls() {
     }
     //show current value of byte
     if (theBytes != null) {
-        //TODO read value from drop down, and make a utility function to help with this
-        $('#currentbytevalue').html("Current value: " + theBytes[0]);
+        if ($('#decorhex-controls').val() === "8u") {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + theBytes[0] + "&nbsp;&nbsp;");
+        } else if ($('#decorhex-controls').val() === "8s") {
+            var w = theBytes[0];
+            //TODO switch to a arraybuffer as the global var; the use a DataView object to read arbitrary values
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + theBytes[0] + "&nbsp;&nbsp;");
+        } else {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp; N/A &nbsp;&nbsp;");
+        }
     }
 }
 
