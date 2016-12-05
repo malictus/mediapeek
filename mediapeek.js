@@ -173,11 +173,29 @@ function updateControls() {
         } else if ($('#decorhex-controls').val() === "8s") {
             $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt8(0) + "&nbsp;&nbsp;");
         } else if ( ($('#decorhex-controls').val() === "16ule") && (bytepos < (theFile.size - 1))) {
-            //16 bit values go here
-        } else if (bytepos < (theFile.size - 3)) {
-            //32 bit values go here
-        } else if (bytepos < (theFile.size - 7)) {
-            //64 bit values go here
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint16(0,true) + "&nbsp;&nbsp;");
+        } else if ( ($('#decorhex-controls').val() === "16ube") && (bytepos < (theFile.size - 1))) {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint16(0,false) + "&nbsp;&nbsp;");
+        } else if ( ($('#decorhex-controls').val() === "16sle") && (bytepos < (theFile.size - 1))) {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt16(0,true) + "&nbsp;&nbsp;");
+        } else if ( ($('#decorhex-controls').val() === "16sbe") && (bytepos < (theFile.size - 1))) {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt16(0,false) + "&nbsp;&nbsp;");
+        } else if ( ($('#decorhex-controls').val() === "32ule") && (bytepos < (theFile.size - 3))) {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint32(0,true) + "&nbsp;&nbsp;");
+        } else if ( ($('#decorhex-controls').val() === "32ube") && (bytepos < (theFile.size - 3))) {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint32(0,false) + "&nbsp;&nbsp;");
+        } else if ( ($('#decorhex-controls').val() === "32sle") && (bytepos < (theFile.size - 3))) {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt32(0,true) + "&nbsp;&nbsp;");
+        } else if ( ($('#decorhex-controls').val() === "32sbe") && (bytepos < (theFile.size - 3))) {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt32(0,false) + "&nbsp;&nbsp;");  
+        } else if ( ($('#decorhex-controls').val() === "32fbe") && (bytepos < (theFile.size - 3))) {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat32(0,false) + "&nbsp;&nbsp;");  
+        } else if ( ($('#decorhex-controls').val() === "32fle") && (bytepos < (theFile.size - 3))) {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat32(0,true) + "&nbsp;&nbsp;");  
+        } else if ( ($('#decorhex-controls').val() === "64fbe") && (bytepos < (theFile.size - 7))) {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat64(0,false) + "&nbsp;&nbsp;");  
+        } else if ( ($('#decorhex-controls').val() === "64fle") && (bytepos < (theFile.size - 7))) {
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat64(0,true) + "&nbsp;&nbsp;");  
         } else {
             $('#currentbytevalue').html("Current value: &nbsp;&nbsp; N/A &nbsp;&nbsp;");
         }

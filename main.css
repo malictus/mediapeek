@@ -71,8 +71,8 @@ body {
 }
 
 #controls {
-    width: 300px;
-    min-width: 300px;
+    width: 330px;
+    min-width: 330px;
     float: left;
     min-height: 520px;
     text-align: left;
@@ -100,13 +100,13 @@ body {
 }
 
 #binarydata {
-    margin-left: 305px;
+    margin-left: 335px;
     margin-right: 410px;
     padding-top: 10px;
     padding-left: 5px;
     padding-right: 5px;
     padding-bottom: 10px;
-    min-width: 500px;
+    min-width: 470px;
     min-height: 320px;
     height: 320px;
     text-align: center;
