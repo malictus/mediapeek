@@ -40,6 +40,10 @@ $(function() {
     $('#byteposbutton').click(function() {
         handleBytePosButton();
     });
+    //file browse button
+    $('#shownbrowsebutton').click(function() {
+        $('#thefile').click();
+    });
     //hex checkbox for byte address
     $('#hexcheck').change(function() {
         updateControls();

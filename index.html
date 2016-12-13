@@ -4,9 +4,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.3/jstree.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.3/themes/default/style.min.css" />
-        <link rel="stylesheet" type="text/css" href="main.css?20161201" />
-        <script src="utilities.js?20161201"></script>
-        <script src="mediapeek.js?20161201"></script>
+        <link rel="stylesheet" type="text/css" href="main.css?20161212" />
+        <script src="utilities.js?20161212"></script>
+        <script src="mediapeek.js?20161212"></script>
     </head>
     <body>
         <div id="title">MediaPeek</div>
@@ -18,13 +18,6 @@
             <div class="filefield"><b>File Size:</b> <span id="filesize"></span></div>
             <div class="filefield"><b>MIME Type:</b> <span id="filetype"></span></div>
         </div>
-        <div id="filechoosearea">
-            <div id="filedroparea"><br/><br/>Drop files here<br/><br/></div>
-            <br/>
-            <div id="filechooser">
-                <input type="file" id="thefile" name="thefile" />
-            </div>
-        </div>
         <div id="description">
             MediaPeek allows you to peek inside a media file (audio, video, or image) and view its contents.
             <ul>
@@ -35,20 +28,27 @@
             </ul>
             Supported Formats: None yet!
         </div>
+        <div id="filechoosearea">
+            <div id="filedroparea">
+                <br/><br/>Drop files here<br/><br/>
+                <input type="button" id="shownbrowsebutton" value="Or click to browse" />
+            </div>
+            <input type="file" id="thefile" name="thefile" /> <!-- this is hidden -->
+        </div>
         <div id="filedisplay">
             NO FILE LOADED
             <video id="videodisplay"></video>
         </div>
         <div id="controls">
-            <br/>
+            <div id="tree"><ul><li>TREE WILL GO HERE</li></ul></div>
+        </div>
+        <div id="binarydata">
             <span id="byteposdisplay">Current address:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><input type="checkbox" id="hexcheck" value="Hex" />Hex<br/>
-            <br/>
             <div id="byteposchoose">
                 Go to address: 
                 <input type="text" id="bytepostext" value="" />
                 <button type="button" id="byteposbutton" disabled>GO</button>
             </div>
-            <br/>
             <span id="currentbytevalue">Current value:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
             <select id="decorhex-controls">
                 <option value="8u">8-bit unsigned</option>
@@ -68,9 +68,6 @@
             </select>
             <br/>
             <br/>
-            File structure:
-            <div id="tree"><ul><li>TREE WILL GO HERE</li></ul></div>
         </div>
-        <div id="binarydata"><br/>BINARY DATA GOES HERE<br/></div>
     </body>
 </html>
