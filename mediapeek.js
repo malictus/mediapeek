@@ -8,13 +8,13 @@
 var theFile;
 //the current byteposition
 var bytepos = -1;
+//the actual ArrayBuffer of data
+var theBytes;
 
 //the maximum size (in bytes) for displaying images
 var FILESIZE_MAX = 4000000;
 //size of array for reading values for display and computing current value
 var ARRAY_SIZE = 512;
-//the actual ArrayBuffer of data
-var theBytes;
 
 /*****************
  * DOM is ready  *
@@ -41,7 +41,7 @@ $(function() {
         handleBytePosButton();
     });
     //file browse button
-    $('#shownbrowsebutton').click(function() {
+    $('#orclicktobrowse').click(function() {
         $('#thefile').click();
     });
     //hex checkbox for byte address
@@ -126,6 +126,7 @@ function updateBytePos() {
         if (evt.target.readyState == FileReader.DONE) {
             theBytes = evt.target.result;
             updateControls();
+            updateBinaryDisplay();
         }
     };
     var end = bytepos + ARRAY_SIZE;
@@ -148,9 +149,9 @@ function updateFileDisplay() {
     updateBytePos();
 }  
 
-/**************************************
- * Update the control area            *
- **************************************/
+/************************
+ * Update the controls  *
+ ************************/
 function updateControls() {
     if (bytepos == -1) {
         //zero byte file; nothing to do here
@@ -203,6 +204,36 @@ function updateControls() {
         } else {
             $('#currentbytevalue').html("Current value: &nbsp;&nbsp; N/A &nbsp;&nbsp;");
         }
+    }
+}
+
+/******************************
+ * Update the binary display  *
+ ******************************/
+function updateBinaryDisplay() {
+    if (theBytes != null) {
+        var view = new DataView(theBytes);
+        var ROWLIMIT = 10;
+        var x = 0;
+        var output = "";
+        var testbyte = "";
+        var end = false;
+        while ((x < ROWLIMIT) && (!end)) {
+            try {
+                testbyte = view.getUint8(x);
+            } catch(err) {
+                end = true;
+                continue;
+            }
+            output = output + testbyte + " ";
+            x = x + 1;
+        }
+        //TODO - make display the correct font
+        //TODO - make display centered
+        //TODO - make display include addresses
+        //TODO - make display have multiple rows
+        //TODO - make constants true contstants and not part of this method
+        $('#binarydisplay').html(output);
     }
 }
 

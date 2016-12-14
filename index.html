@@ -4,9 +4,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.3/jstree.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.3/themes/default/style.min.css" />
-        <link rel="stylesheet" type="text/css" href="main.css?20161212" />
-        <script src="utilities.js?20161212"></script>
-        <script src="mediapeek.js?20161212"></script>
+        <link rel="stylesheet" type="text/css" href="main.css?20161213" />
+        <script src="utilities.js?20161213"></script>
+        <script src="mediapeek.js?20161213"></script>
     </head>
     <body>
         <div id="title">MediaPeek</div>
@@ -14,9 +14,9 @@
             Copyright 2016, by James Halliday | <a href="mailto:malictus@gmail.com">Contact</a> | <a href="https://github.com/malictus/mediapeek">Github</a>
         </div>
         <div id="basicinfo">
-            <div class="filefield"><b>File Name:</b> <span id="filename"></span></div>
-            <div class="filefield"><b>File Size:</b> <span id="filesize"></span></div>
-            <div class="filefield"><b>MIME Type:</b> <span id="filetype"></span></div>
+            <div><b>File Name:</b> <span id="filename"></span></div>
+            <div><b>File Size:</b> <span id="filesize"></span></div>
+            <div><b>MIME Type:</b> <span id="filetype"></span></div>
         </div>
         <div id="description">
             MediaPeek allows you to peek inside a media file (audio, video, or image) and view its contents.
@@ -31,7 +31,7 @@
         <div id="filechoosearea">
             <div id="filedroparea">
                 <br/><br/>Drop files here<br/><br/>
-                <input type="button" id="shownbrowsebutton" value="Or click to browse" />
+                <input type="button" id="orclicktobrowse" value="Or click to browse" />
             </div>
             <input type="file" id="thefile" name="thefile" /> <!-- this is hidden -->
         </div>
@@ -39,7 +39,7 @@
             NO FILE LOADED
             <video id="videodisplay"></video>
         </div>
-        <div id="controls">
+        <div id="treecontrols">
             <div id="tree"><ul><li>TREE WILL GO HERE</li></ul></div>
         </div>
         <div id="binarydata">
@@ -67,7 +67,7 @@
                 <option value="64fbe">64-bit float BE</option>
             </select>
             <br/>
-            <br/>
+            <div id="binarydisplay"></div>
         </div>
     </body>
 </html>
