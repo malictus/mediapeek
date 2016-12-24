@@ -6,10 +6,6 @@
 
 /**************
 TODOS
-- make binary display include addresses
-- make binary display wider to include addresses without truncation
-- make entire screen longer to accomodate addresses and tree area longer too
-- make end of file not cause binary display to center weirdly
 - allow clicking on specific bytes in display and highlight the current one and use arrow keys too
 - better navigation controls (next page, previous page)
 ***************/
@@ -233,23 +229,35 @@ function updateBinaryDisplay() {
         var end = false;
         while ((y < ROWLIMIT) && (!end)) {
             x = 0;
+            output = output + displayAddress((y * COLLIMIT) + bytepos) + "&nbsp;&nbsp;";
             while ((x < COLLIMIT) && (!end)) {
                 try {
                     testbyte = view.getUint8(x + (y * COLLIMIT));
                 } catch(err) {
                     end = true;
+                    while (x < COLLIMIT) {
+                        //pad display for end of file
+                        output = output + "&nbsp;&nbsp;&nbsp;";
+                        x = x + 1;
+                    }
                     continue;
                 }
                 output = output + displaySingleByte(testbyte) + " ";
                 x = x + 1;
             }
             x = 0;
+            end = false;
             output = output + "&nbsp;&nbsp;";
             while ((x < COLLIMIT) && (!end)) {
                 try {
                     testbyte = view.getUint8(x + (y * COLLIMIT));
                 } catch(err) {
                     end = true;
+                    while (x < COLLIMIT) {
+                        //pad display for end of file
+                        output = output + "&nbsp;";
+                        x = x + 1;
+                    }
                     continue;
                 }
                 output = output + displayByteAsCharCode(testbyte);

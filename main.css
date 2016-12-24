@@ -1,6 +1,6 @@
 body {
     font-family: sans-serif;  
-    min-width: 1224px;
+    min-width: 1300px;
 }
 
 #title {
@@ -84,15 +84,14 @@ body {
     width: 330px;
     min-width: 330px;
     float: left;
-    min-height: 320px;
     text-align: left;
     padding-left: 6px;
     padding-right: 6px;
     padding-top: 6px;
     padding-bottom: 6px;
-    border: solid;
     overflow: scroll;
     font-size: 12;
+    min-height: 300px;
 }
 
 #tree {
@@ -116,9 +115,7 @@ body {
     padding-left: 20px;
     padding-right: 5px;
     padding-bottom: 10px;
-    min-width: 470px;
-    min-height: 320px;
-    height: 320px;
+    min-width: 530px;
     text-align: left;
     font-size: 12;
     line-height: 210%;

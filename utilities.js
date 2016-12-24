@@ -22,7 +22,6 @@ function formatBytes(bytes,decimals) {
  *******************************************************/
 function displaySingleByte(byte) {
     var ret = byte.toString(16);
-    //var ret = String.fromCharCode(byte);
     if (ret.length < 2) {
         ret = "0" + ret;
     }
@@ -38,6 +37,17 @@ function displayByteAsCharCode(byte) {
     } else {
         return ".";
     }
+}
+
+/**************************
+ * Display a byte address *
+ **************************/
+function displayAddress(bytepos) {
+    var ret = bytepos.toString(16);
+    while (ret.length < 8) {
+        ret = "0" + ret;
+    }
+    return ret;
 }
 
 /******************************
