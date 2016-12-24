@@ -16,3 +16,39 @@ function formatBytes(bytes,decimals) {
    var i = Math.floor(Math.log(bytes) / Math.log(k));
    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
+
+/*******************************************************
+ * Display a single byte as a two-character hex string *
+ *******************************************************/
+function displaySingleByte(byte) {
+    var ret = byte.toString(16);
+    //var ret = String.fromCharCode(byte);
+    if (ret.length < 2) {
+        ret = "0" + ret;
+    }
+    return ret;
+}
+
+/****************************************************
+ * Display a single byte as a char code if possible *
+ ****************************************************/
+function displayByteAsCharCode(byte) {
+    if ((byte >= 33) && (byte <= 122)) {
+        return escapeHtml(String.fromCharCode(byte));
+    } else {
+        return ".";
+    }
+}
+
+/******************************
+ * Escape bad HTML characters *
+ ******************************/
+//see http://stackoverflow.com/questions/6234773/can-i-escape-html-special-chars-in-javascript
+function escapeHtml(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+ }

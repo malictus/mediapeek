@@ -1,5 +1,5 @@
 body {
-  font-family: sans-serif;  
+    font-family: sans-serif;  
     min-width: 1224px;
 }
 
@@ -122,4 +122,6 @@ body {
     text-align: left;
     font-size: 12;
     line-height: 210%;
+    font-family: monospace;
+    text-align: center;
 }

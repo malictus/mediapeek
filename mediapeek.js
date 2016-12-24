@@ -4,6 +4,16 @@
  * MEDIAPEEK.JS                              *
  *********************************************/
 
+/**************
+TODOS
+- make binary display include addresses
+- make binary display wider to include addresses without truncation
+- make entire screen longer to accomodate addresses and tree area longer too
+- make end of file not cause binary display to center weirdly
+- allow clicking on specific bytes in display and highlight the current one and use arrow keys too
+- better navigation controls (next page, previous page)
+***************/
+
 //the currently open file
 var theFile;
 //the current byteposition
@@ -15,6 +25,9 @@ var theBytes;
 var FILESIZE_MAX = 4000000;
 //size of array for reading values for display and computing current value
 var ARRAY_SIZE = 512;
+//number of columns in byte display
+var COLLIMIT = 16;
+var ROWLIMIT = 16;
 
 /*****************
  * DOM is ready  *
@@ -213,26 +226,38 @@ function updateControls() {
 function updateBinaryDisplay() {
     if (theBytes != null) {
         var view = new DataView(theBytes);
-        var ROWLIMIT = 10;
         var x = 0;
+        var y = 0;
         var output = "";
         var testbyte = "";
         var end = false;
-        while ((x < ROWLIMIT) && (!end)) {
-            try {
-                testbyte = view.getUint8(x);
-            } catch(err) {
-                end = true;
-                continue;
+        while ((y < ROWLIMIT) && (!end)) {
+            x = 0;
+            while ((x < COLLIMIT) && (!end)) {
+                try {
+                    testbyte = view.getUint8(x + (y * COLLIMIT));
+                } catch(err) {
+                    end = true;
+                    continue;
+                }
+                output = output + displaySingleByte(testbyte) + " ";
+                x = x + 1;
             }
-            output = output + testbyte + " ";
-            x = x + 1;
+            x = 0;
+            output = output + "&nbsp;&nbsp;";
+            while ((x < COLLIMIT) && (!end)) {
+                try {
+                    testbyte = view.getUint8(x + (y * COLLIMIT));
+                } catch(err) {
+                    end = true;
+                    continue;
+                }
+                output = output + displayByteAsCharCode(testbyte);
+                x = x + 1;
+            }
+            output = output + "<br/>";
+            y = y + 1;
         }
-        //TODO - make display the correct font
-        //TODO - make display centered
-        //TODO - make display include addresses
-        //TODO - make display have multiple rows
-        //TODO - make constants true contstants and not part of this method
         $('#binarydisplay').html(output);
     }
 }
