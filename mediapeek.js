@@ -6,8 +6,9 @@
 
 /**************
 TODOS
-- allow clicking on specific bytes in display and highlight the current one and use arrow keys too
-- better navigation controls (next page, previous page)
+- make blue links not blue or underlined
+- make clicking them work, and reset on curvalues but not read new bytes
+- make arrow keys work
 ***************/
 
 //the currently open file
@@ -16,12 +17,14 @@ var theFile;
 var bytepos = -1;
 //the actual ArrayBuffer of data
 var theBytes;
+//number of byte actually selected in binary display
+var dispByte = 0;
 
 //the maximum size (in bytes) for displaying images
 var FILESIZE_MAX = 4000000;
 //size of array for reading values for display and computing current value
 var ARRAY_SIZE = 512;
-//number of columns in byte display
+//number of columns and rows in byte display
 var COLLIMIT = 16;
 var ROWLIMIT = 16;
 
@@ -48,6 +51,13 @@ $(function() {
     //init address shift button
     $('#byteposbutton').click(function() {
         handleBytePosButton();
+    });
+    //back and forward binary display buttons
+    $('#btnBack').click(function() {
+        handleBtnBack();
+    });
+    $('#btnForward').click(function() {
+        handleBtnForward();
     });
     //file browse button
     $('#orclicktobrowse').click(function() {
@@ -115,52 +125,57 @@ function handleBytePosButton() {
     updateBytePos();
 }
 
-/************************************************* FILE READING CODE ***********************/
-/****************************************************
- * Update byte position in currently open file      *
- ****************************************************/
+/*******************************
+ * btnBack button was pressed  * 
+ *******************************/
+function handleBtnBack() {
+    intval = bytepos - (COLLIMIT * ROWLIMIT);
+    if (intval < 0) {
+        intval = 0;
+    }
+    readFileFrom(intval);
+}
+
+/**********************************
+ * btnForward button was pressed  * 
+ **********************************/
+function handleBtnForward() {
+    intval = bytepos + (COLLIMIT * ROWLIMIT);
+    if (intval >= theFile.size) {
+        intval = theFile.size - 1;
+    }
+    readFileFrom(intval);
+}
+
+/************************************************* UPDATE UI CODE ***********************/
+/*******************************************
+ * New byte position button was pressed    *
+ *******************************************/
 function updateBytePos() {
     if (theFile == null) {
         return;
     }
     var newval = $('#bytepostext').val();
     var intval = parseInt(newval);
-    if ((intval !== intval) || (intval < 0) || (intval > (theFile.size - 1))) {
+    if (readFileFrom(intval) == -1) {
         $('#bytepostext').val(bytepos);
-        return;
     }
-    bytepos = intval;
-    var reader = new FileReader();
-    reader.onloadend = function(evt) {
-        if (evt.target.readyState == FileReader.DONE) {
-            theBytes = evt.target.result;
-            updateControls();
-            updateBinaryDisplay();
-        }
-    };
-    var end = bytepos + ARRAY_SIZE;
-    if (end > theFile.size) {
-        end = theFile.size;
-    }
-    var blob = theFile.slice(bytepos, end);
-    reader.readAsArrayBuffer(blob);
 }
 
-/************************************************* UPDATE UI CODE ***********************/
 /****************************************************
  * A new file has been selected; update the display *
  ****************************************************/
 function updateFileDisplay() {
     //reset current byte position to zero
     $('#bytepostext').val(0);
-    updateBasicInfo();
-    updatePlayer();
+    loadBasicInfo();
+    loadPlayer();
     updateBytePos();
 }  
 
-/************************
- * Update the controls  *
- ************************/
+/***************************************************
+ * Update the controls portion of binary display   *
+ ***************************************************/
 function updateControls() {
     if (bytepos == -1) {
         //zero byte file; nothing to do here
@@ -178,6 +193,17 @@ function updateControls() {
         $('#byteposbutton').attr('disabled','disabled');
     } else {
         $('#byteposbutton').removeAttr('disabled');
+    }
+    //disable or enable the arrow buttons
+    if (bytepos > 0) {
+        $('#btnBack').removeAttr('disabled');
+    } else {
+        $('#btnBack').attr('disabled','disabled');
+    }
+    if (bytepos < (theFile.size - (COLLIMIT * ROWLIMIT))) {
+        $('#btnForward').removeAttr('disabled');
+    } else {
+        $('#btnForward').attr('disabled','disabled');
     }
     //show current value of byte
     if (theBytes != null) {
@@ -216,9 +242,10 @@ function updateControls() {
     }
 }
 
-/******************************
- * Update the binary display  *
- ******************************/
+/*************************************************************
+ * Loads the binary display                                  *
+ * Assumes 'theBytes' array is loaded and ready for reading  *
+ *************************************************************/
 function updateBinaryDisplay() {
     if (theBytes != null) {
         var view = new DataView(theBytes);
@@ -242,7 +269,11 @@ function updateBinaryDisplay() {
                     }
                     continue;
                 }
-                output = output + displaySingleByte(testbyte) + " ";
+                if (x + (y * COLLIMIT) == dispByte) {
+                    output = output + "<span class='selectedbyte'>" + displaySingleByte(testbyte) + "</span> ";
+                } else {
+                    output = output + "<a href='s'>" + displaySingleByte(testbyte) + "</a> ";
+                }
                 x = x + 1;
             }
             x = 0;
@@ -260,7 +291,11 @@ function updateBinaryDisplay() {
                     }
                     continue;
                 }
-                output = output + displayByteAsCharCode(testbyte);
+                if (x + (y * COLLIMIT) == dispByte) {
+                    output = output + "<span class='selectedbyte'>" + displayByteAsCharCode(testbyte) + "</span>";
+                } else {
+                    output = output + "<a href='s'>" + displayByteAsCharCode(testbyte) + "</a>";
+                }
                 x = x + 1;
             }
             output = output + "<br/>";
@@ -270,10 +305,12 @@ function updateBinaryDisplay() {
     }
 }
 
-/**************************************
- * Update basic file information text *
- **************************************/
-function updateBasicInfo() {
+/*******************************************
+ * Load basic file information text        *
+ * called when loading a new file          *
+ * assumes 'theFile' is set before calling *
+ *******************************************/
+function loadBasicInfo() {
     $('#filename').html(theFile.name);
     $('#filesize').html(theFile.size + " bytes (" + formatBytes(theFile.size,1) + ")");
     var thetype = theFile.type;
@@ -283,10 +320,12 @@ function updateBasicInfo() {
     $('#filetype').html(thetype);
 }
 
-/**************************************
- * Display picture/video/sound player *
- **************************************/
-function updatePlayer() {
+/*******************************************
+ * Display picture/video/sound player      *
+ * called when loading a new file
+ * assumes 'theFile' is set before calling *
+ *******************************************/
+function loadPlayer() {
     var thetype = theFile.type;
     var displayNode = document.getElementById('filedisplay');
     //now display if possible
@@ -322,3 +361,28 @@ function updatePlayer() {
     }
 }
 
+/************************************************* FILE READING CODE ***********************/4
+/************************************************************
+ * Load a new slice of the file and populate UI accordingly *
+ * returns -1 if new value isn't valid                      *
+ ************************************************************/
+function readFileFrom(intval) {
+    if ((intval !== intval) || (intval < 0) || (intval > (theFile.size - 1))) {
+        return -1;
+    }
+    bytepos = intval;
+    var reader = new FileReader();
+    reader.onloadend = function(evt) {
+        if (evt.target.readyState == FileReader.DONE) {
+            theBytes = evt.target.result;
+            updateControls();
+            updateBinaryDisplay();
+        }
+    };
+    var end = bytepos + ARRAY_SIZE;
+    if (end > theFile.size) {
+        end = theFile.size;
+    }
+    var blob = theFile.slice(bytepos, end);
+    reader.readAsArrayBuffer(blob);
+}
