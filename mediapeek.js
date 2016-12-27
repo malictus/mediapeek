@@ -4,21 +4,16 @@
  * MEDIAPEEK.JS                              *
  *********************************************/
 
-/**************
-TODOS
-- make blue links not blue or underlined
-- make clicking them work, and reset on curvalues but not read new bytes
-- make arrow keys work
-***************/
-
 //the currently open file
 var theFile;
-//the current byteposition
+//the current byteposition - will be -1 if file is zero-byte or no file open
 var bytepos = -1;
-//the actual ArrayBuffer of data
+//the actual ArrayBuffer of file data
 var theBytes;
 //number of byte actually selected in binary display
 var dispByte = 0;
+//number of the byte at the beginning of binary display
+var beginByte = 0;
 
 //the maximum size (in bytes) for displaying images
 var FILESIZE_MAX = 4000000;
@@ -81,13 +76,6 @@ $(function() {
 function handleFileChooserSelect(e) {
     //for now there will always be only one
     theFile = e.target.files[0];  
-    if (theFile != null) {
-        if (theFile.size < 1) {
-            bytepos = -1;
-        } else {
-            bytepos = 0;
-        }
-    }
     updateFileDisplay();
 }
 
@@ -108,13 +96,6 @@ function handleFileDrag(e) {
     e.preventDefault();
     //assumes one
     theFile = e.dataTransfer.files[0];
-    if (theFile != null) {
-        if (theFile.size < 1) {
-            bytepos = -1;
-        } else {
-            bytepos = 0;
-        }
-    }
     updateFileDisplay();
 }
 
@@ -129,36 +110,54 @@ function handleBytePosButton() {
  * btnBack button was pressed  * 
  *******************************/
 function handleBtnBack() {
-    intval = bytepos - (COLLIMIT * ROWLIMIT);
+    intval = beginByte - (COLLIMIT * ROWLIMIT);
     if (intval < 0) {
         intval = 0;
     }
-    readFileFrom(intval);
+    readFileFrom(intval, false);
 }
 
 /**********************************
  * btnForward button was pressed  * 
  **********************************/
 function handleBtnForward() {
-    intval = bytepos + (COLLIMIT * ROWLIMIT);
+    intval = beginByte + (COLLIMIT * ROWLIMIT);
     if (intval >= theFile.size) {
         intval = theFile.size - 1;
     }
-    readFileFrom(intval);
+    readFileFrom(intval, false);
 }
 
 /************************************************* UPDATE UI CODE ***********************/
-/*******************************************
- * New byte position button was pressed    *
- *******************************************/
+/******************************************************************************
+ * Update to a new byte position (reloading byte array and binary display)    *
+ ******************************************************************************/
 function updateBytePos() {
     if (theFile == null) {
         return;
     }
     var newval = $('#bytepostext').val();
     var intval = parseInt(newval);
-    if (readFileFrom(intval) == -1) {
+    if (readFileFrom(intval, true) == -1) {
         $('#bytepostext').val(bytepos);
+    } else {
+        dispByte = 0;
+        
+    }
+}
+
+/*************************************************
+ * New byte within binary display was pressed    *
+ *************************************************/
+function slideTo(newpos) {
+    if (theFile == null) {
+        return;
+    }
+    if ((newpos >= 0) && (newpos <= (ROWLIMIT * COLLIMIT))) {
+        dispByte = newpos;
+        bytepos = beginByte + dispByte;
+        updateControls();
+        updateBinaryDisplay();
     }
 }
 
@@ -166,8 +165,18 @@ function updateBytePos() {
  * A new file has been selected; update the display *
  ****************************************************/
 function updateFileDisplay() {
+    if (theFile != null) {
+        if (theFile.size < 1) {
+            bytepos = -1;
+            $('#binarydisplay').html("");
+        } else {
+            bytepos = 0;
+        }
+    }
     //reset current byte position to zero
     $('#bytepostext').val(0);
+    dispByte = 0;
+    beginByte = 0;
     loadBasicInfo();
     loadPlayer();
     updateBytePos();
@@ -195,12 +204,12 @@ function updateControls() {
         $('#byteposbutton').removeAttr('disabled');
     }
     //disable or enable the arrow buttons
-    if (bytepos > 0) {
+    if (beginByte > 0) {
         $('#btnBack').removeAttr('disabled');
     } else {
         $('#btnBack').attr('disabled','disabled');
     }
-    if (bytepos < (theFile.size - (COLLIMIT * ROWLIMIT))) {
+    if (beginByte < (theFile.size - (COLLIMIT * ROWLIMIT))) {
         $('#btnForward').removeAttr('disabled');
     } else {
         $('#btnForward').attr('disabled','disabled');
@@ -209,33 +218,33 @@ function updateControls() {
     if (theBytes != null) {
         var view = new DataView(theBytes);
         if ($('#decorhex-controls').val() === "8u") {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint8(0) + "&nbsp;&nbsp;");
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint8(dispByte) + "&nbsp;&nbsp;");
         } else if ($('#decorhex-controls').val() === "8s") {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt8(0) + "&nbsp;&nbsp;");
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt8(dispByte) + "&nbsp;&nbsp;");
         } else if ( ($('#decorhex-controls').val() === "16ule") && (bytepos < (theFile.size - 1))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint16(0,true) + "&nbsp;&nbsp;");
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint16(dispByte,true) + "&nbsp;&nbsp;");
         } else if ( ($('#decorhex-controls').val() === "16ube") && (bytepos < (theFile.size - 1))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint16(0,false) + "&nbsp;&nbsp;");
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint16(dispByte,false) + "&nbsp;&nbsp;");
         } else if ( ($('#decorhex-controls').val() === "16sle") && (bytepos < (theFile.size - 1))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt16(0,true) + "&nbsp;&nbsp;");
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt16(dispByte,true) + "&nbsp;&nbsp;");
         } else if ( ($('#decorhex-controls').val() === "16sbe") && (bytepos < (theFile.size - 1))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt16(0,false) + "&nbsp;&nbsp;");
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt16(dispByte,false) + "&nbsp;&nbsp;");
         } else if ( ($('#decorhex-controls').val() === "32ule") && (bytepos < (theFile.size - 3))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint32(0,true) + "&nbsp;&nbsp;");
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint32(dispByte,true) + "&nbsp;&nbsp;");
         } else if ( ($('#decorhex-controls').val() === "32ube") && (bytepos < (theFile.size - 3))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint32(0,false) + "&nbsp;&nbsp;");
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getUint32(dispByte,false) + "&nbsp;&nbsp;");
         } else if ( ($('#decorhex-controls').val() === "32sle") && (bytepos < (theFile.size - 3))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt32(0,true) + "&nbsp;&nbsp;");
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt32(dispByte,true) + "&nbsp;&nbsp;");
         } else if ( ($('#decorhex-controls').val() === "32sbe") && (bytepos < (theFile.size - 3))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt32(0,false) + "&nbsp;&nbsp;");  
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getInt32(dispByte,false) + "&nbsp;&nbsp;");  
         } else if ( ($('#decorhex-controls').val() === "32fbe") && (bytepos < (theFile.size - 3))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat32(0,false) + "&nbsp;&nbsp;");  
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat32(dispByte,false) + "&nbsp;&nbsp;");  
         } else if ( ($('#decorhex-controls').val() === "32fle") && (bytepos < (theFile.size - 3))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat32(0,true) + "&nbsp;&nbsp;");  
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat32(dispByte,true) + "&nbsp;&nbsp;");  
         } else if ( ($('#decorhex-controls').val() === "64fbe") && (bytepos < (theFile.size - 7))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat64(0,false) + "&nbsp;&nbsp;");  
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat64(dispByte,false) + "&nbsp;&nbsp;");  
         } else if ( ($('#decorhex-controls').val() === "64fle") && (bytepos < (theFile.size - 7))) {
-            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat64(0,true) + "&nbsp;&nbsp;");  
+            $('#currentbytevalue').html("Current value: &nbsp;&nbsp;" + view.getFloat64(dispByte,true) + "&nbsp;&nbsp;");  
         } else {
             $('#currentbytevalue').html("Current value: &nbsp;&nbsp; N/A &nbsp;&nbsp;");
         }
@@ -256,7 +265,7 @@ function updateBinaryDisplay() {
         var end = false;
         while ((y < ROWLIMIT) && (!end)) {
             x = 0;
-            output = output + displayAddress((y * COLLIMIT) + bytepos) + "&nbsp;&nbsp;";
+            output = output + displayAddress((y * COLLIMIT)) + "&nbsp;&nbsp;";
             while ((x < COLLIMIT) && (!end)) {
                 try {
                     testbyte = view.getUint8(x + (y * COLLIMIT));
@@ -272,7 +281,7 @@ function updateBinaryDisplay() {
                 if (x + (y * COLLIMIT) == dispByte) {
                     output = output + "<span class='selectedbyte'>" + displaySingleByte(testbyte) + "</span> ";
                 } else {
-                    output = output + "<a href='s'>" + displaySingleByte(testbyte) + "</a> ";
+                    output = output + "<a style='color: black; text-decoration: none;' onclick='slideTo(" + (x + (y * COLLIMIT)) + "); return false' href='#'>" + displaySingleByte(testbyte) + "</a> ";
                 }
                 x = x + 1;
             }
@@ -294,7 +303,7 @@ function updateBinaryDisplay() {
                 if (x + (y * COLLIMIT) == dispByte) {
                     output = output + "<span class='selectedbyte'>" + displayByteAsCharCode(testbyte) + "</span>";
                 } else {
-                    output = output + "<a href='s'>" + displayByteAsCharCode(testbyte) + "</a>";
+                    output = output + "<a style='color: black; text-decoration: none;' onclick='slideTo(" + (x + (y * COLLIMIT)) + "); return false' href='#'>" + displayByteAsCharCode(testbyte) + "</a>";
                 }
                 x = x + 1;
             }
@@ -302,6 +311,8 @@ function updateBinaryDisplay() {
             y = y + 1;
         }
         $('#binarydisplay').html(output);
+    } else {
+        $('#binarydisplay').html("");
     }
 }
 
@@ -365,12 +376,24 @@ function loadPlayer() {
 /************************************************************
  * Load a new slice of the file and populate UI accordingly *
  * returns -1 if new value isn't valid                      *
+ * if resetToZero is set, will move current pointer to top  *
  ************************************************************/
-function readFileFrom(intval) {
+function readFileFrom(intval, resetToZero) {
     if ((intval !== intval) || (intval < 0) || (intval > (theFile.size - 1))) {
         return -1;
     }
-    bytepos = intval;
+    beginByte = intval;
+    if (resetToZero == true) {
+        bytepos = beginByte + dispByte;
+    } else {
+        dispByte = 0;
+        bytepos = beginByte;
+    }
+    if (bytepos > theFile.size -1) {
+        //does current byte go beyond end of file
+        bytepos = intval;
+        dispByte = 0;
+    }
     var reader = new FileReader();
     reader.onloadend = function(evt) {
         if (evt.target.readyState == FileReader.DONE) {
@@ -379,10 +402,10 @@ function readFileFrom(intval) {
             updateBinaryDisplay();
         }
     };
-    var end = bytepos + ARRAY_SIZE;
+    var end = beginByte + ARRAY_SIZE;
     if (end > theFile.size) {
         end = theFile.size;
     }
-    var blob = theFile.slice(bytepos, end);
+    var blob = theFile.slice(beginByte, end);
     reader.readAsArrayBuffer(blob);
 }
