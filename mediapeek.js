@@ -4,6 +4,8 @@
  * MEDIAPEEK.JS                              *
  *********************************************/
 
+//TODO - populate tree area for PNG files and do object oriented work for file types
+
 //the currently open file
 var theFile;
 //the current byteposition - will be -1 if file is zero-byte or no file open
@@ -14,6 +16,8 @@ var theBytes;
 var dispByte = 0;
 //number of the byte at the beginning of binary display
 var beginByte = 0;
+//an integer that represents the file type of the currently open file
+var filetype = FILETYPE_NONE;
 
 //the maximum size (in bytes) for displaying images
 var FILESIZE_MAX = 4000000;
@@ -180,7 +184,23 @@ function updateFileDisplay() {
     loadBasicInfo();
     loadPlayer();
     updateBytePos();
+    buildFileTree();
 }  
+
+/***********************
+ * Build the file tree *
+ ***********************/
+function buildFileTree() {
+    findFileType(theFile);
+}
+
+/***********************************************************
+ * Triggered once the actual file type has been determined *
+ ***********************************************************/
+function triggerTreeBuild(newFileType) {
+    filetype = newFileType;
+    alert(filetype);
+}
 
 /***************************************************
  * Update the controls portion of binary display   *
