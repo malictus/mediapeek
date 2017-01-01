@@ -9,7 +9,7 @@ var FILETYPE_PNG = 1;
 var BYTESIZE = 256;
 var localbytes;
 
-/************************************************/
+/************************************************
  * Called by main code to determine a file type *
  ************************************************/
 function findFileType(theFile) {

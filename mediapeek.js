@@ -4,7 +4,21 @@
  * MEDIAPEEK.JS                              *
  *********************************************/
 
-//TODO - populate tree area for PNG files and do object oriented work for file types
+/**********************************************************
+ * A FileNode is the main component of a file             *
+ * start = byte address of start of this node             *
+ * length = length of node in bytes                       *
+ * description = a string description of a node           *
+ * children = an array of child FileNodes, might be empty *
+ * error = error messages associated with node (optional) *
+ **********************************************************/
+function FileNode(start, length, description, children, error) {    
+    this.start = start;
+    this.length = length;
+    this.description = description;
+    this.children = children;
+    this.error = error;
+}
 
 //the currently open file
 var theFile;
@@ -18,6 +32,8 @@ var dispByte = 0;
 var beginByte = 0;
 //an integer that represents the file type of the currently open file
 var filetype = FILETYPE_NONE;
+//a FileNode object we will build later
+var nodetree;
 
 //the maximum size (in bytes) for displaying images
 var FILESIZE_MAX = 4000000;
@@ -150,6 +166,20 @@ function updateBytePos() {
     }
 }
 
+/***********************************************************
+ * Triggered once the actual file type has been determined *
+ ***********************************************************/
+function triggerTreeBuild(newFileType) {
+    filetype = newFileType;
+    switch(filetype) {
+        case FILETYPE_PNG:
+            nodetree = buildPNGNodeTree(theFile);
+            break;
+        default:
+            break;
+    }
+}
+
 /*************************************************
  * New byte within binary display was pressed    *
  *************************************************/
@@ -192,14 +222,6 @@ function updateFileDisplay() {
  ***********************/
 function buildFileTree() {
     findFileType(theFile);
-}
-
-/***********************************************************
- * Triggered once the actual file type has been determined *
- ***********************************************************/
-function triggerTreeBuild(newFileType) {
-    filetype = newFileType;
-    alert(filetype);
 }
 
 /***************************************************
