@@ -4,6 +4,9 @@
  * MEDIAPEEK.JS                              *
  *********************************************/
 
+//TODO - incorporate new file reading method into filefinder.js
+//TODO - continue building PNG file nodes
+
 /**********************************************************
  * A FileNode is the main component of a file             *
  * start = byte address of start of this node             *
@@ -416,7 +419,7 @@ function loadPlayer() {
 
 /************************************************* FILE READING CODE ***********************/4
 /************************************************************
- * Load a new slice of the file and populate UI accordingly *
+ * Load a new slice of the file                             *
  * returns -1 if new value isn't valid                      *
  * if resetToZero is set, will move current pointer to top  *
  ************************************************************/
@@ -436,18 +439,18 @@ function readFileFrom(intval, resetToZero) {
         bytepos = intval;
         dispByte = 0;
     }
-    var reader = new FileReader();
-    reader.onloadend = function(evt) {
-        if (evt.target.readyState == FileReader.DONE) {
-            theBytes = evt.target.result;
-            updateControls();
-            updateBinaryDisplay();
-        }
-    };
     var end = beginByte + ARRAY_SIZE;
     if (end > theFile.size) {
         end = theFile.size;
     }
-    var blob = theFile.slice(beginByte, end);
-    reader.readAsArrayBuffer(blob);
+    readFileSlice(beginByte, end, theFile, doit);
+}
+
+/*******************************************************
+ * Handle the actual UI update after reading new bytes *
+ *******************************************************/
+function doit(returnbytes) {
+    theBytes = returnbytes;
+    updateControls();
+    updateBinaryDisplay();
 }

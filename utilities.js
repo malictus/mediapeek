@@ -4,6 +4,10 @@
  * UTILITIES.JS                              *
  *********************************************/
 
+//these are used to trigger file reading done
+var FILE_READING_DONE = false;
+var thebytes;
+
 /**********************************
  * Convert bytes to readable text *
  **********************************/
@@ -62,3 +66,18 @@ function escapeHtml(unsafe) {
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
  }
+
+/**************************
+ * Read a chunk of a file *
+ **************************/
+function readFileSlice(startByte, endByte, theFile, callbackfunction) {
+    blob = theFile.slice(startByte, endByte);
+    var reader = new FileReader();
+    reader.onloadend = function(evt) {
+        if (evt.target.readyState == FileReader.DONE) {
+            thebytes =  evt.target.result;
+            callbackfunction(thebytes);
+        }              
+    };
+    reader.readAsArrayBuffer(blob);
+}
