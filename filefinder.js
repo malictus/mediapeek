@@ -7,31 +7,22 @@
 var FILETYPE_NONE = 0;
 var FILETYPE_PNG = 1;
 var BYTESIZE = 256;
-var localbytes;
 
 /************************************************
  * Called by main code to determine a file type *
  ************************************************/
 function findFileType(theFile) {
-    var reader = new FileReader();
-    reader.onloadend = function(evt) {
-        if (evt.target.readyState == FileReader.DONE) {
-            localbytes = evt.target.result;
-            processFileType();
-        }
-    };
     var end = BYTESIZE;
     if (end > theFile.size) {
         end = theFile.size;
     }
-    var blob = theFile.slice(0, end);
-    reader.readAsArrayBuffer(blob);
+    readFileSlice(0, end, theFile, processFileType);
 }
 
 /***********************************************************
  * Called internally to read bytes and determine file type *
  ***********************************************************/
-function processFileType() {
+function processFileType(localbytes) {
     var view = new DataView(localbytes);
     //PNG FILE CHECK
     if (theFile.size > 8) {

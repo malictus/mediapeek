@@ -4,9 +4,6 @@
  * MEDIAPEEK.JS                              *
  *********************************************/
 
-//TODO - incorporate new file reading method into filefinder.js
-//TODO - continue building PNG file nodes
-
 /**********************************************************
  * A FileNode is the main component of a file             *
  * start = byte address of start of this node             *
@@ -176,11 +173,18 @@ function triggerTreeBuild(newFileType) {
     filetype = newFileType;
     switch(filetype) {
         case FILETYPE_PNG:
-            nodetree = buildPNGNodeTree(theFile);
+            buildPNGNodeTree(theFile, finishTreeBuild);
             break;
         default:
             break;
     }
+}
+
+/*************************************************
+ * Nodetree has been built, not populate tree UI *
+ *************************************************/
+function finishTreeBuild(newnodetree) {
+    nodetree = newnodetree;
 }
 
 /*************************************************
@@ -443,13 +447,13 @@ function readFileFrom(intval, resetToZero) {
     if (end > theFile.size) {
         end = theFile.size;
     }
-    readFileSlice(beginByte, end, theFile, doit);
+    readFileSlice(beginByte, end, theFile, afterReadUpdate);
 }
 
 /*******************************************************
  * Handle the actual UI update after reading new bytes *
  *******************************************************/
-function doit(returnbytes) {
+function afterReadUpdate(returnbytes) {
     theBytes = returnbytes;
     updateControls();
     updateBinaryDisplay();
