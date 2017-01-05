@@ -4,6 +4,11 @@
  * MEDIAPEEK.JS                              *
  *********************************************/
 
+//TODOS 
+//for tree nodes, display length (human readable)
+//for tree nodes, display error messages if there are any
+//maybe make short / long description and show more description and error in separate box?
+
 /**********************************************************
  * A FileNode is the main component of a file             *
  * start = byte address of start of this node             *
@@ -34,6 +39,8 @@ var beginByte = 0;
 var filetype = FILETYPE_NONE;
 //a FileNode object we will build later
 var nodetree;
+//a temp string object used to build the recursive tree
+var treestring;
 
 //the maximum size (in bytes) for displaying images
 var FILESIZE_MAX = 4000000;
@@ -175,16 +182,43 @@ function triggerTreeBuild(newFileType) {
         case FILETYPE_PNG:
             buildPNGNodeTree(theFile, finishTreeBuild);
             break;
+        case FILETYPE_NONE:
+            $('#tree').html("");
+            break;
         default:
             break;
     }
 }
 
 /*************************************************
- * Nodetree has been built, not populate tree UI *
+ * Nodetree has been built, now populate tree UI *
  *************************************************/
 function finishTreeBuild(newnodetree) {
     nodetree = newnodetree;
+    //build the UI based on the tree
+    treestring = "<ul><li>" + nodetree.description;
+    treeRecurse(nodetree);
+    treestring = treestring + "</li>";
+    treestring = treestring + "</ul>";
+    $('#tree').html(treestring);
+}
+
+function treeRecurse(nodetree) {
+    var x = 0;
+    if (nodetree.children.length > 0) {
+        treestring = treestring + "<ul>";
+    }
+    while (x < nodetree.children.length) {
+        treestring = treestring + "<li>" + nodetree.children[x].description + "</li>";
+        if (nodetree.children[x].children.length > 0) {
+            treeRecurse(nodetree.children[x]);
+        }
+        x = x + 1;
+    }
+    if (nodetree.children.length > 0) {
+        treestring = treestring + "</ul>";
+    }
+    return treestring;
 }
 
 /*************************************************
@@ -228,6 +262,7 @@ function updateFileDisplay() {
  * Build the file tree *
  ***********************/
 function buildFileTree() {
+    //the rest of this function happens within the callback functions
     findFileType(theFile);
 }
 
