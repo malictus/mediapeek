@@ -1,31 +1,33 @@
 /**********************************************
- * MediaPeek JavaScript                       *
- * Copyright 2016, James Halliday             *
+ * MediaPeek                                  *
+ * Copyright 2017, James Halliday             *
  * FILEFINDER.JS                              *
  *********************************************/
 
+//each supported file type gets a constant here
 var FILETYPE_NONE = 0;
 var FILETYPE_PNG = 1;
+//how many bytes to read to determine filetype
 var BYTESIZE = 256;
 
-/************************************************
- * Called by main code to determine a file type *
- ************************************************/
-function findFileType(theFile) {
+/***************************
+ * Determine a file's type *
+ ***************************/
+function findFileType() {
     var end = BYTESIZE;
-    if (end > theFile.size) {
-        end = theFile.size;
+    if (end > global_theFile.size) {
+        end = global_theFile.size;
     }
-    readFileSlice(0, end, theFile, processFileType);
+    readFileSlice(0, end, global_theFile, processFileType);
 }
 
-/***********************************************************
- * Called internally to read bytes and determine file type *
- ***********************************************************/
+/******************************************************************************
+ * Callback to read bytes, determine file type, and trigger building the tree *
+ ******************************************************************************/
 function processFileType(localbytes) {
     var view = new DataView(localbytes);
-    //PNG FILE CHECK
-    if (theFile.size > 8) {
+    //PNG file check
+    if (global_theFile.size > 8) {
         var first32 = view.getUint32(0, true);
         var second32 = view.getUint32(4, true);
         if ((first32 == 1196314761) && (second32 == 169478669)) {
@@ -33,6 +35,6 @@ function processFileType(localbytes) {
             return;
         }
     }
-    //DOESNT MATCH A TYPE - GIVE UP
+    //doesn't match a type; give up
     triggerTreeBuild(FILETYPE_NONE);
 }
