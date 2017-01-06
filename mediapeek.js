@@ -4,10 +4,12 @@
  * MEDIAPEEK.JS                              *
  *********************************************/
 
-//TODOS 
-//for tree nodes, display length (human readable)
-//for tree nodes, display error messages if there are any
-//maybe make short / long description and show more description and error in separate box?
+//TODOS
+//for tree nodes, display error and / or description in separate area
+//make tree nodes clickable
+//select innermost node of byte 0 at beginning
+//move node appropriately when navigating through file in other ways
+//make selected node bytes red in binary display when selecting node
 
 /**********************************************************
  * A FileNode is the main component of a file             *
@@ -17,9 +19,10 @@
  * children = an array of child FileNodes, might be empty *
  * error = error messages associated with node (optional) *
  **********************************************************/
-function FileNode(start, length, description, children, error) {    
+function FileNode(start, length, name, description, children, error) {    
     this.start = start;
     this.length = length;
+    this.name = name;
     this.description = description;
     this.children = children;
     this.error = error;
@@ -184,6 +187,7 @@ function triggerTreeBuild(newFileType) {
             break;
         case FILETYPE_NONE:
             $('#tree').html("");
+            $('#moreinfo').html("");
             break;
         default:
             break;
@@ -196,26 +200,27 @@ function triggerTreeBuild(newFileType) {
 function finishTreeBuild(newnodetree) {
     nodetree = newnodetree;
     //build the UI based on the tree
-    treestring = "<ul><li>" + nodetree.description;
+    treestring = "<ul><li>" + nodetree.name + " (" + formatBytes(nodetree.length,1) + ")";
     treeRecurse(nodetree);
     treestring = treestring + "</li>";
     treestring = treestring + "</ul>";
     $('#tree').html(treestring);
+    $('#moreinfo').html("");
 }
 
-function treeRecurse(nodetree) {
+function treeRecurse(recursenode) {
     var x = 0;
-    if (nodetree.children.length > 0) {
+    if (recursenode.children.length > 0) {
         treestring = treestring + "<ul>";
     }
-    while (x < nodetree.children.length) {
-        treestring = treestring + "<li>" + nodetree.children[x].description + "</li>";
-        if (nodetree.children[x].children.length > 0) {
-            treeRecurse(nodetree.children[x]);
+    while (x < recursenode.children.length) {
+        treestring = treestring + "<li>" + recursenode.children[x].name + " (" + formatBytes(recursenode.children[x].length,1) + ")</li>";
+        if (recursenode.children[x].children.length > 0) {
+            treeRecurse(recursenode.children[x]);
         }
         x = x + 1;
     }
-    if (nodetree.children.length > 0) {
+    if (recursenode.children.length > 0) {
         treestring = treestring + "</ul>";
     }
     return treestring;
