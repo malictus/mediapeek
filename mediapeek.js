@@ -5,8 +5,9 @@
  *********************************************/
 
 //TODOS
-//finish code cleanup for this file, starting with event handling
-//for tree nodes, display error and/or description in separate area
+//swith to json, using iterator (send parent ID to recursive function)
+//remove global treestring variable
+//display error and/or description in separate area (not part of scroll area)
 //make tree nodes clickable
 //select innermost node of byte 0 at beginning
 //move node appropriately when navigating through file in other ways
@@ -46,6 +47,8 @@ var global_dispByte = 0;
 var global_treestring;
 //a FileNode object (with FileNode children) that represents the file
 var global_nodetree;
+//this is used to iterate ids when building trees
+var tree_iterator = 0;
 
 //the maximum size (in bytes) for displaying images in the browser
 var FILESIZE_MAX = 4000000;
@@ -160,6 +163,18 @@ function handleBtnForward() {
     readFileFrom(intval, false);
 }
 
+/*********************************
+ * handle clicking a tree node   *
+ *********************************/
+function handleTreeNodeClick(e, data) {
+    var i, j, r = [];
+    for(i = 0, j = data.selected.length; i < j; i++) {
+        r.push(data.instance.get_node(data.selected[i]).text);
+    }
+    var ret = r.join(', ');
+    $('#moreinfo').html('Selected: ' + ret);    
+} 
+
 /************************************************* UPDATE UI CODE ***********************/
 /******************************************************************************
  * Update to a new byte position (reloading byte array and binary display)    *
@@ -200,11 +215,17 @@ function triggerTreeBuild(newFileType) {
  ******************************************************/
 function finishTreeBuild() {
     //build the UI based on the tree
-    global_treestring = "<ul><li>" + global_nodetree.name + " (" + formatBytes(global_nodetree.length,1) + ")";
+    tree_iterator = 0;
+    global_treestring = "<ul><li>" + tree_iterator + " " + global_nodetree.name + " (" + formatBytes(global_nodetree.length,1) + ")";
+    tree_iterator++;
     treeRecurse(global_nodetree);
     global_treestring = global_treestring + "</li></ul>";    
     $('#tree').jstree('destroy');
     $('#tree').html(global_treestring);
+    //have to add this even handler every time since we destroy previous
+    $('#tree').on('changed.jstree', function (e, data) {
+        handleTreeNodeClick(e, data);
+    });
     $('#tree').jstree();
 }
 
@@ -217,7 +238,8 @@ function treeRecurse(recursenode) {
         global_treestring = global_treestring + "<ul>";
     }
     while (x < recursenode.children.length) {
-        global_treestring = global_treestring + "<li>" + recursenode.children[x].name + " (" + formatBytes(recursenode.children[x].length,1) + ")</li>";
+        tree_iterator++;
+        global_treestring = global_treestring + "<li>" + tree_iterator + " " + recursenode.children[x].name + " (" + formatBytes(recursenode.children[x].length,1) + ")</li>";
         if (recursenode.children[x].children.length > 0) {
             treeRecurse(recursenode.children[x]);
         }
@@ -455,7 +477,6 @@ function loadPlayer() {
     }
 }
 
-/************************************************* FILE READING CODE ***********************/
 /************************************************************
  * Load a new slice of the file                             *
  * returns -1 if new value isn't valid                      *
