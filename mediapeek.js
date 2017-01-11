@@ -5,13 +5,13 @@
  *********************************************/
 
 //TODOS
-//swith to json, using iterator (send parent ID to recursive function)
-//remove global treestring variable
-//display error and/or description in separate area (not part of scroll area)
-//make tree nodes clickable
+//display error when there's an error
+//make node red when there's an error
+//move error/description (moreinfo) into its own scroll area below tree
+//when node clicked select correct part of binary display
+//make selected node bytes green(?) in binary display when selecting node
 //select innermost node of byte 0 at beginning
 //move node appropriately when navigating through file in other ways
-//make selected node bytes red in binary display when selecting node
 
 /**********************************************************
  * A FileNode is the main component of a file             *
@@ -43,12 +43,12 @@ var global_filetype = FILETYPE_NONE;
 var global_beginByte = 0;
 //the number of byte currently selected in binary display within the byte array only
 var global_dispByte = 0;
-//a temp string object used to build the recursive tree string
-var global_treestring;
 //a FileNode object (with FileNode children) that represents the file
 var global_nodetree;
 //this is used to iterate ids when building trees
-var tree_iterator = 0;
+var global_tree_iterator = 0;
+//used to compile all the tree nodes while generating tree
+var global_tree_nodes = [];
 
 //the maximum size (in bytes) for displaying images in the browser
 var FILESIZE_MAX = 4000000;
@@ -167,12 +167,8 @@ function handleBtnForward() {
  * handle clicking a tree node   *
  *********************************/
 function handleTreeNodeClick(e, data) {
-    var i, j, r = [];
-    for(i = 0, j = data.selected.length; i < j; i++) {
-        r.push(data.instance.get_node(data.selected[i]).text);
-    }
-    var ret = r.join(', ');
-    $('#moreinfo').html('Selected: ' + ret);    
+    //assumes always selecting single node
+    $('#moreinfo').html(data.instance.get_node(data.selected[0]).data.description);    
 } 
 
 /************************************************* UPDATE UI CODE ***********************/
@@ -215,38 +211,38 @@ function triggerTreeBuild(newFileType) {
  ******************************************************/
 function finishTreeBuild() {
     //build the UI based on the tree
-    tree_iterator = 0;
-    global_treestring = "<ul><li>" + tree_iterator + " " + global_nodetree.name + " (" + formatBytes(global_nodetree.length,1) + ")";
-    tree_iterator++;
-    treeRecurse(global_nodetree);
-    global_treestring = global_treestring + "</li></ul>";    
+    global_tree_iterator = 0;
+    global_tree_nodes = [];
+    global_tree_nodes.push({ "id" : global_tree_iterator, "parent" : "#", "text" : global_nodetree.name + " (" + formatBytes(global_nodetree.length,1) + ")", 
+                           "data" : { "start" : global_nodetree.start, "length" : global_nodetree.length, "error" : global_nodetree.error, 
+                           "description" : global_nodetree.description} });
+    treeRecurse(global_nodetree, global_tree_iterator);
+    global_tree_iterator++;   
     $('#tree').jstree('destroy');
-    $('#tree').html(global_treestring);
-    //have to add this even handler every time since we destroy previous
+    //have to add this event handler every time since we destroy previous
     $('#tree').on('changed.jstree', function (e, data) {
         handleTreeNodeClick(e, data);
     });
-    $('#tree').jstree();
+    //recreate tree
+    $('#tree').jstree({ 'core' : {
+        'data' : global_tree_nodes
+    } });
 }
 
 /******************************************
  * recursive function to build tree nodes *
  ******************************************/
-function treeRecurse(recursenode) {
+function treeRecurse(recursenode, parentID) {
     var x = 0;
-    if (recursenode.children.length > 0) {
-        global_treestring = global_treestring + "<ul>";
-    }
     while (x < recursenode.children.length) {
-        tree_iterator++;
-        global_treestring = global_treestring + "<li>" + tree_iterator + " " + recursenode.children[x].name + " (" + formatBytes(recursenode.children[x].length,1) + ")</li>";
+        global_tree_iterator++;
+        global_tree_nodes.push({ "id" : global_tree_iterator, "parent" : parentID, "text" : recursenode.children[x].name + " (" + formatBytes(recursenode.children[x].length,1) + ")",
+                            "data" : { "start" : recursenode.children[x].start, "length" : recursenode.children[x].length, "error" : recursenode.children[x].error, 
+                           "description" : recursenode.children[x].description} });
         if (recursenode.children[x].children.length > 0) {
-            treeRecurse(recursenode.children[x]);
+            treeRecurse(recursenode.children[x], global_tree_iterator);
         }
         x = x + 1;
-    }
-    if (recursenode.children.length > 0) {
-        global_treestring = global_treestring + "</ul>";
     }
 }
 
