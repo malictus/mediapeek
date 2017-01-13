@@ -1,6 +1,6 @@
 body {
     font-family: sans-serif;  
-    min-width: 1300px;
+    min-width: 1350px;
 }
 
 #title {
@@ -85,17 +85,28 @@ body {
     min-width: 330px;
     float: left;
     text-align: left;
+    font-size: 12;
+    min-height: 400px;
+}
+
+#tree {
+    margin-top:10px;
     padding-left: 6px;
     padding-right: 6px;
     padding-top: 6px;
     padding-bottom: 6px;
     overflow: scroll;
-    font-size: 12;
     min-height: 300px;
 }
 
-#tree {
+#moreinfo {
     margin-top:10px;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    overflow: scroll;
+    min-height: 100px;
 }
 
 #bytepostext {

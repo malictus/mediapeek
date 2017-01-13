@@ -5,9 +5,7 @@
  *********************************************/
 
 //TODOS
-//display error when there's an error
 //make node red when there's an error
-//move error/description (moreinfo) into its own scroll area below tree
 //when node clicked select correct part of binary display
 //make selected node bytes green(?) in binary display when selecting node
 //select innermost node of byte 0 at beginning
@@ -168,7 +166,11 @@ function handleBtnForward() {
  *********************************/
 function handleTreeNodeClick(e, data) {
     //assumes always selecting single node
-    $('#moreinfo').html(data.instance.get_node(data.selected[0]).data.description);    
+    moreinfo = data.instance.get_node(data.selected[0]).data.description;
+    if (data.instance.get_node(data.selected[0]).data.error) {
+        moreinfo = moreinfo + "<br/><br/><div style='color: red'>ERROR: " + data.instance.get_node(data.selected[0]).data.error + "</div>";
+    }
+    $('#moreinfo').html(moreinfo);    
 } 
 
 /************************************************* UPDATE UI CODE ***********************/
