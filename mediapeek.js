@@ -5,10 +5,7 @@
  *********************************************/
 
 //TODOS
-//when node clicked select correct part of binary display
-//make selected node bytes green(?) in binary display when selecting node
-//select innermost node of byte 0 at beginning
-//move node appropriately when navigating through file in other ways
+//move node appropriately when navigating through file in other ways (clicking bytes or using byte nav button or for/back buttons)
 
 /**********************************************************
  * A FileNode is the main component of a file             *
@@ -46,6 +43,11 @@ var global_nodetree;
 var global_tree_iterator = 0;
 //used to compile all the tree nodes while generating tree
 var global_tree_nodes = [];
+//the start position of the currently selected tree node
+global_nodestart = 0;
+//the lenght of the currnently selected tree ndoe
+global_nodelength = 0;
+
 
 //the maximum size (in bytes) for displaying images in the browser
 var FILESIZE_MAX = 4000000;
@@ -164,12 +166,20 @@ function handleBtnForward() {
  * handle clicking a tree node   *
  *********************************/
 function handleTreeNodeClick(e, data) {
+    //first, put something in 'moreinfo'
     //assumes always selecting single node
-    moreinfo = data.instance.get_node(data.selected[0]).data.description;
+    moreinfo = "<br/><b>Start:</b> " +  data.instance.get_node(data.selected[0]).data.start;
+    moreinfo = moreinfo + "<br/><b>Length:</b> " +  data.instance.get_node(data.selected[0]).data.length;
+    moreinfo = moreinfo + "<br/><br/>" + data.instance.get_node(data.selected[0]).data.description;
     if (data.instance.get_node(data.selected[0]).data.error) {
         moreinfo = moreinfo + "<br/><br/><div style='color: red'>ERROR: " + data.instance.get_node(data.selected[0]).data.error + "</div>";
     }
     $('#moreinfo').html(moreinfo);    
+    //set nodestart and length params globally
+    global_nodestart = data.instance.get_node(data.selected[0]).data.start;
+    global_nodelength = data.instance.get_node(data.selected[0]).data.length;
+    //next, move binary display
+    readFileFrom(data.instance.get_node(data.selected[0]).data.start, true);
 } 
 
 /************************************************* UPDATE UI CODE ***********************/
@@ -218,11 +228,11 @@ function finishTreeBuild() {
         topnode = { "a_attr" : {"style":"color:red"},    
                            "id" : global_tree_iterator, "parent" : "#", "text" : global_nodetree.name + " (" + formatBytes(global_nodetree.length,1) + ")", 
                            "data" : { "start" : global_nodetree.start, "length" : global_nodetree.length, "error" : global_nodetree.error, 
-                           "description" : global_nodetree.description} };
+                           "description" : global_nodetree.description}, "state" : { "opened" : true, "selected"  : true} };
     } else {
         topnode = { "id" : global_tree_iterator, "parent" : "#", "text" : global_nodetree.name + " (" + formatBytes(global_nodetree.length,1) + ")", 
                            "data" : { "start" : global_nodetree.start, "length" : global_nodetree.length, "error" : global_nodetree.error, 
-                           "description" : global_nodetree.description} };
+                           "description" : global_nodetree.description}, "state" : { "opened" : true, "selected"  : true} };
     }
     global_tree_nodes.push(topnode);
     treeRecurse(global_nodetree, global_tree_iterator);
@@ -399,7 +409,11 @@ function updateBinaryDisplay() {
                 if (x + (y * COLLIMIT) == global_dispByte) {
                     output = output + "<span class='selectedbyte'>" + displaySingleByte(testbyte) + "</span> ";
                 } else {
-                    output = output + "<a style='color: black; text-decoration: none;' onclick='slideTo(" + (x + (y * COLLIMIT)) + "); return false' href='#'>" + displaySingleByte(testbyte) + "</a> ";
+                    thecolor = "gray";
+                    if ( ((x + (y * COLLIMIT)) >= global_nodestart) && ((x + (y * COLLIMIT)) <= (global_nodestart + global_nodelength)) ) {
+                        thecolor = "black";
+                    }
+                    output = output + "<a style='color: " + thecolor + "; text-decoration: none;' onclick='slideTo(" + (x + (y * COLLIMIT)) + "); return false' href='#'>" + displaySingleByte(testbyte) + "</a> ";
                 }
                 x = x + 1;
             }
@@ -421,7 +435,11 @@ function updateBinaryDisplay() {
                 if (x + (y * COLLIMIT) == global_dispByte) {
                     output = output + "<span class='selectedbyte'>" + displayByteAsCharCode(testbyte) + "</span>";
                 } else {
-                    output = output + "<a style='color: black; text-decoration: none;' onclick='slideTo(" + (x + (y * COLLIMIT)) + "); return false' href='#'>" + displayByteAsCharCode(testbyte) + "</a>";
+                    thecolor = "gray";
+                    if ( ((x + (y * COLLIMIT)) >= global_nodestart) && ((x + (y * COLLIMIT)) <= (global_nodestart + global_nodelength)) ) {
+                        thecolor = "black";
+                    }
+                    output = output + "<a style='color: " + thecolor + "; text-decoration: none;' onclick='slideTo(" + (x + (y * COLLIMIT)) + "); return false' href='#'>" + displayByteAsCharCode(testbyte) + "</a>";
                 }
                 x = x + 1;
             }
