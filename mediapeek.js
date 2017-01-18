@@ -5,7 +5,6 @@
  *********************************************/
 
 //TODOS
-//make node red when there's an error
 //when node clicked select correct part of binary display
 //make selected node bytes green(?) in binary display when selecting node
 //select innermost node of byte 0 at beginning
@@ -215,9 +214,17 @@ function finishTreeBuild() {
     //build the UI based on the tree
     global_tree_iterator = 0;
     global_tree_nodes = [];
-    global_tree_nodes.push({ "id" : global_tree_iterator, "parent" : "#", "text" : global_nodetree.name + " (" + formatBytes(global_nodetree.length,1) + ")", 
+    if (global_nodetree.error) {
+        topnode = { "a_attr" : {"style":"color:red"},    
+                           "id" : global_tree_iterator, "parent" : "#", "text" : global_nodetree.name + " (" + formatBytes(global_nodetree.length,1) + ")", 
                            "data" : { "start" : global_nodetree.start, "length" : global_nodetree.length, "error" : global_nodetree.error, 
-                           "description" : global_nodetree.description} });
+                           "description" : global_nodetree.description} };
+    } else {
+        topnode = { "id" : global_tree_iterator, "parent" : "#", "text" : global_nodetree.name + " (" + formatBytes(global_nodetree.length,1) + ")", 
+                           "data" : { "start" : global_nodetree.start, "length" : global_nodetree.length, "error" : global_nodetree.error, 
+                           "description" : global_nodetree.description} };
+    }
+    global_tree_nodes.push(topnode);
     treeRecurse(global_nodetree, global_tree_iterator);
     global_tree_iterator++;   
     $('#tree').jstree('destroy');
@@ -238,9 +245,17 @@ function treeRecurse(recursenode, parentID) {
     var x = 0;
     while (x < recursenode.children.length) {
         global_tree_iterator++;
-        global_tree_nodes.push({ "id" : global_tree_iterator, "parent" : parentID, "text" : recursenode.children[x].name + " (" + formatBytes(recursenode.children[x].length,1) + ")",
+        if (recursenode.children[x].error) {
+            newnode = { "a_attr" : {"style":"color:red"},
+                            "id" : global_tree_iterator, "parent" : parentID, "text" : recursenode.children[x].name + " (" + formatBytes(recursenode.children[x].length,1) + ")",
                             "data" : { "start" : recursenode.children[x].start, "length" : recursenode.children[x].length, "error" : recursenode.children[x].error, 
-                           "description" : recursenode.children[x].description} });
+                            "description" : recursenode.children[x].description} };
+        } else {
+            newnode = { "id" : global_tree_iterator, "parent" : parentID, "text" : recursenode.children[x].name + " (" + formatBytes(recursenode.children[x].length,1) + ")",
+                            "data" : { "start" : recursenode.children[x].start, "length" : recursenode.children[x].length, "error" : recursenode.children[x].error, 
+                            "description" : recursenode.children[x].description} }
+        }
+        global_tree_nodes.push(newnode);
         if (recursenode.children[x].children.length > 0) {
             treeRecurse(recursenode.children[x], global_tree_iterator);
         }
