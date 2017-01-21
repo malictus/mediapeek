@@ -5,7 +5,8 @@
  *********************************************/
 
 //TODOS
-//move node appropriately when navigating through file in other ways (clicking bytes or using byte nav button or for/back buttons)
+//test algorithm more by creating many nodes for clickage
+//actually do something when moving around and make sure it all works (clicking bytes or using byte nav button or for/back buttons)
 
 /**********************************************************
  * A FileNode is the main component of a file             *
@@ -15,6 +16,7 @@
  * description = a longer string description of a node    *
  * children = an array of child FileNodes, might be empty *
  * error = error message associated with node (optional)  *
+ * id = id that mathches this node to a tree node         *
  **********************************************************/
 function FileNode(start, length, name, description, children, error) {    
     this.start = start;
@@ -44,10 +46,9 @@ var global_tree_iterator = 0;
 //used to compile all the tree nodes while generating tree
 var global_tree_nodes = [];
 //the start position of the currently selected tree node
-global_nodestart = 0;
+var global_nodestart = 0;
 //the lenght of the currnently selected tree ndoe
-global_nodelength = 0;
-
+var global_nodelength = 0;
 
 //the maximum size (in bytes) for displaying images in the browser
 var FILESIZE_MAX = 4000000;
@@ -196,6 +197,11 @@ function updateBytePos() {
         $('#bytepostext').val(global_bytepos);
     } else {
         global_dispByte = 0;
+        if (global_tree_nodes.length > 0) {
+            console.log("HERE IS IT: " + findNodeFor(global_bytepos).data.description);
+        }
+        
+        //$('#tree').jstree(true).select_node(findNodeFor(global_bytepos,global_tree_nodes),true);
     }
 }
 
@@ -410,7 +416,7 @@ function updateBinaryDisplay() {
                     output = output + "<span class='selectedbyte'>" + displaySingleByte(testbyte) + "</span> ";
                 } else {
                     thecolor = "gray";
-                    if ( ((x + (y * COLLIMIT)) >= global_nodestart) && ((x + (y * COLLIMIT)) <= (global_nodestart + global_nodelength)) ) {
+                    if ( ((x + (y * COLLIMIT)) >= global_nodestart) && ((x + (y * COLLIMIT)) < (global_nodestart + global_nodelength)) ) {
                         thecolor = "black";
                     }
                     output = output + "<a style='color: " + thecolor + "; text-decoration: none;' onclick='slideTo(" + (x + (y * COLLIMIT)) + "); return false' href='#'>" + displaySingleByte(testbyte) + "</a> ";
@@ -436,7 +442,7 @@ function updateBinaryDisplay() {
                     output = output + "<span class='selectedbyte'>" + displayByteAsCharCode(testbyte) + "</span>";
                 } else {
                     thecolor = "gray";
-                    if ( ((x + (y * COLLIMIT)) >= global_nodestart) && ((x + (y * COLLIMIT)) <= (global_nodestart + global_nodelength)) ) {
+                    if ( ((x + (y * COLLIMIT)) >= global_nodestart) && ((x + (y * COLLIMIT)) < (global_nodestart + global_nodelength)) ) {
                         thecolor = "black";
                     }
                     output = output + "<a style='color: " + thecolor + "; text-decoration: none;' onclick='slideTo(" + (x + (y * COLLIMIT)) + "); return false' href='#'>" + displayByteAsCharCode(testbyte) + "</a>";
@@ -543,4 +549,24 @@ function afterReadUpdate(returnbytes) {
     global_theBytes = returnbytes;
     updateControls();
     updateBinaryDisplay();
+}
+
+/*************************************************************
+ * Given a byte address, find the right node in the jstree   *
+ *************************************************************/
+function findNodeFor(byteAddress) {
+    //finds it by simply traversing the tree array and returning the last node it finds that contains the byte
+    if (global_tree_nodes == null) {
+        return null;
+    }
+    var x = 0;
+    var theOne = null;
+    while (x < global_tree_nodes.length) {
+        var theChild = global_tree_nodes[x];
+        if ((byteAddress >= global_tree_nodes[x].data.start) && (byteAddress < (global_tree_nodes[x].data.start + global_tree_nodes[x].data.length))) {
+            theOne = global_tree_nodes[x];
+        }
+        x++;
+    }
+    return theOne;
 }
