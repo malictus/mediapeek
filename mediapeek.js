@@ -5,8 +5,10 @@
  *********************************************/
 
 //TODOS
+//fix bytepos to adjust binary display highlisted bytes when clicking
 //test algorithm more by creating many nodes for clickage
-//actually do something when moving around and make sure it all works (clicking bytes or using byte nav button or for/back buttons)
+//test when have a file with no tree
+//test clicking buttons for / back, and navigating to specific byte in display
 
 /**********************************************************
  * A FileNode is the main component of a file             *
@@ -16,7 +18,7 @@
  * description = a longer string description of a node    *
  * children = an array of child FileNodes, might be empty *
  * error = error message associated with node (optional)  *
- * id = id that mathches this node to a tree node         *
+ * id = id that matches this node to a tree node          *
  **********************************************************/
 function FileNode(start, length, name, description, children, error) {    
     this.start = start;
@@ -197,11 +199,7 @@ function updateBytePos() {
         $('#bytepostext').val(global_bytepos);
     } else {
         global_dispByte = 0;
-        if (global_tree_nodes.length > 0) {
-            console.log("HERE IS IT: " + findNodeFor(global_bytepos).data.description);
-        }
-        
-        //$('#tree').jstree(true).select_node(findNodeFor(global_bytepos,global_tree_nodes),true);
+        findNodeFor(global_bytepos);
     }
 }
 
@@ -551,9 +549,10 @@ function afterReadUpdate(returnbytes) {
     updateBinaryDisplay();
 }
 
-/*************************************************************
- * Given a byte address, find the right node in the jstree   *
- *************************************************************/
+/****************************************************************
+ * Given a byte address, navigate to right node in the jstree   *
+ * Doesn't ever trigger callbacks                               *
+ ****************************************************************/
 function findNodeFor(byteAddress) {
     //finds it by simply traversing the tree array and returning the last node it finds that contains the byte
     if (global_tree_nodes == null) {
@@ -568,5 +567,9 @@ function findNodeFor(byteAddress) {
         }
         x++;
     }
-    return theOne;
+    if (theOne == null) {
+        return;
+    }
+    $('#tree').jstree(true).deselect_all(true);
+    $('#tree').jstree(true).select_node(theOne.id,true);
 }
