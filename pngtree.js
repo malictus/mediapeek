@@ -36,7 +36,7 @@ function processfilebeginning(beginbytes) {
     //begin building returnnode
     global_nodetree = new FileNode(0, global_theFile.size, "PNG Image File", "PNG (Portable Network Graphics) File", []);
     //add PNG header node
-    global_nodetree.children.push(new FileNode(0, 8, "PNG Header", "An 8-byte header. Every PNG file starts with this header.", []));
+    global_nodetree.children.push(new FileNode(0, 8, "PNG Header", "An 8-byte header. Every PNG file starts with this header.", [])); 
     //finished - return the node
     finishtreebuild();
 }

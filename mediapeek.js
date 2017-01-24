@@ -4,12 +4,6 @@
  * MEDIAPEEK.JS                              *
  *********************************************/
 
-//TODOS
-//fix bytepos to adjust binary display highlisted bytes when clicking
-//test algorithm more by creating many nodes for clickage
-//test when have a file with no tree
-//test clicking buttons for / back, and navigating to specific byte in display
-
 /**********************************************************
  * A FileNode is the main component of a file             *
  * start = byte address of start of this node             *
@@ -49,7 +43,7 @@ var global_tree_iterator = 0;
 var global_tree_nodes = [];
 //the start position of the currently selected tree node
 var global_nodestart = 0;
-//the lenght of the currnently selected tree ndoe
+//the length of the currently selected tree ndoe
 var global_nodelength = 0;
 
 //the maximum size (in bytes) for displaying images in the browser
@@ -152,6 +146,7 @@ function handleBtnBack() {
         intval = 0;
     }
     readFileFrom(intval, false);
+    findNodeFor(intval);
 }
 
 /**********************************
@@ -163,27 +158,39 @@ function handleBtnForward() {
         intval = global_theFile.size - 1;
     }
     readFileFrom(intval, false);
+    findNodeFor(intval);
 }
 
 /*********************************
  * handle clicking a tree node   *
  *********************************/
 function handleTreeNodeClick(e, data) {
-    //first, put something in 'moreinfo'
-    //assumes always selecting single node
-    moreinfo = "<br/><b>Start:</b> " +  data.instance.get_node(data.selected[0]).data.start;
-    moreinfo = moreinfo + "<br/><b>Length:</b> " +  data.instance.get_node(data.selected[0]).data.length;
-    moreinfo = moreinfo + "<br/><br/>" + data.instance.get_node(data.selected[0]).data.description;
-    if (data.instance.get_node(data.selected[0]).data.error) {
-        moreinfo = moreinfo + "<br/><br/><div style='color: red'>ERROR: " + data.instance.get_node(data.selected[0]).data.error + "</div>";
-    }
-    $('#moreinfo').html(moreinfo);    
-    //set nodestart and length params globally
-    global_nodestart = data.instance.get_node(data.selected[0]).data.start;
-    global_nodelength = data.instance.get_node(data.selected[0]).data.length;
-    //next, move binary display
+    global_dispByte = 0;
+    populateMoreInfo(data.instance.get_node(data.selected[0]));
+    setNodeBounds(data.instance.get_node(data.selected[0]));
     readFileFrom(data.instance.get_node(data.selected[0]).data.start, true);
 } 
+
+/*****************************************
+ * set 'more info' based on current node *
+ *****************************************/
+function populateMoreInfo(node) {
+    moreinfo = "<br/><b>Start:</b> " +  node.data.start;
+    moreinfo = moreinfo + "<br/><b>Length:</b> " +  node.data.length;
+    moreinfo = moreinfo + "<br/><br/>" + node.data.description;
+    if (node.data.error) {
+        moreinfo = moreinfo + "<br/><br/><div style='color: red'>ERROR: " + node.data.error + "</div>";
+    }
+    $('#moreinfo').html(moreinfo);    
+}
+
+/*************************************
+ * set global bounds based on a node *
+ *************************************/
+function setNodeBounds(node) {
+    global_nodestart = node.data.start;
+    global_nodelength = node.data.length;
+}
 
 /************************************************* UPDATE UI CODE ***********************/
 /******************************************************************************
@@ -287,6 +294,7 @@ function slideTo(newpos) {
     if ((newpos >= 0) && (newpos <= (ROWLIMIT * COLLIMIT))) {
         global_dispByte = newpos;
         global_bytepos = global_beginByte + global_dispByte;
+        findNodeFor(newpos);
         updateControls();
         updateBinaryDisplay();
     }
@@ -414,7 +422,7 @@ function updateBinaryDisplay() {
                     output = output + "<span class='selectedbyte'>" + displaySingleByte(testbyte) + "</span> ";
                 } else {
                     thecolor = "gray";
-                    if ( ((x + (y * COLLIMIT)) >= global_nodestart) && ((x + (y * COLLIMIT)) < (global_nodestart + global_nodelength)) ) {
+                    if ( ((x + (y * COLLIMIT)) >= (global_nodestart - global_beginByte)) && ((x + (y * COLLIMIT)) < (global_nodestart + global_nodelength - global_beginByte)) ) {
                         thecolor = "black";
                     }
                     output = output + "<a style='color: " + thecolor + "; text-decoration: none;' onclick='slideTo(" + (x + (y * COLLIMIT)) + "); return false' href='#'>" + displaySingleByte(testbyte) + "</a> ";
@@ -440,7 +448,7 @@ function updateBinaryDisplay() {
                     output = output + "<span class='selectedbyte'>" + displayByteAsCharCode(testbyte) + "</span>";
                 } else {
                     thecolor = "gray";
-                    if ( ((x + (y * COLLIMIT)) >= global_nodestart) && ((x + (y * COLLIMIT)) < (global_nodestart + global_nodelength)) ) {
+                    if ( ((x + (y * COLLIMIT)) >= (global_nodestart - global_beginByte)) && ((x + (y * COLLIMIT)) < (global_nodestart + global_nodelength - global_beginByte)) ) {
                         thecolor = "black";
                     }
                     output = output + "<a style='color: " + thecolor + "; text-decoration: none;' onclick='slideTo(" + (x + (y * COLLIMIT)) + "); return false' href='#'>" + displayByteAsCharCode(testbyte) + "</a>";
@@ -572,4 +580,6 @@ function findNodeFor(byteAddress) {
     }
     $('#tree').jstree(true).deselect_all(true);
     $('#tree').jstree(true).select_node(theOne.id,true);
+    populateMoreInfo(theOne);
+    setNodeBounds(theOne);
 }
