@@ -76,3 +76,25 @@ function readFileSlice(startByte, endByte, theFile, callbackfunction) {
     };
     reader.readAsArrayBuffer(blob);
 }
+
+/*******************************************************
+ * Parse a byte array into alphabetical only text      *
+ * Return null if any non alphabetic chars are present *
+ *******************************************************/
+function readAlphaChunk(bytearray) {
+    var view = new DataView(bytearray);
+    if (bytearray.byteLength < 1) {
+        return null;
+    }
+    var x = 0;
+    var finalstring = "";
+    while (x < bytearray.byteLength) {
+        var b = view.getUint8(x);
+        if ( (b < 65) || (b > 122) || ( (b > 90) && (b < 97) ) ) {
+            return null;
+        }
+        finalstring = finalstring + String.fromCharCode(b);
+        x++;
+    }
+    return finalstring;
+}

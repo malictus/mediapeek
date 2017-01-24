@@ -294,7 +294,7 @@ function slideTo(newpos) {
     if ((newpos >= 0) && (newpos <= (ROWLIMIT * COLLIMIT))) {
         global_dispByte = newpos;
         global_bytepos = global_beginByte + global_dispByte;
-        findNodeFor(newpos);
+        findNodeFor(global_bytepos);
         updateControls();
         updateBinaryDisplay();
     }
