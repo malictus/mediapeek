@@ -81,20 +81,39 @@ function processChunk(chunkHeader) {
         finishtreebuild();
         return;
     }
-    chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", chunkname + " Chunk", []);
-    chunkn.children.push(new FileNode(curChunkStart, 4, "Chunk Length", "Chunk Length", []));
-    chunkn.children.push(new FileNode(curChunkStart + 4, 4, "Chunk Name", "Chunk Name", []));
+    if (chunkname == "IHDR") {
+        chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", "The IHDR Chunk is a fixed-size information chunk that should be the first chunk in every PNG file.", []);
+    } else if (chunkname == "IEND") {
+        chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", "The IEND Chunk is a chunk with no data, that should be the last chunk in every PNG file.", []);
+    } else {
+        chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", chunkname + " Chunk", []);
+    }
+    chunkn.children.push(new FileNode(curChunkStart, 4, "Chunk Length", "A 4-byte big-endian integer representing the length of the data field for this chunk.<br/>VALUE: " + length, []));
+    chunkn.children.push(new FileNode(curChunkStart + 4, 4, "Chunk Name", "Alphabetical-only 4-byte string representing the name of this chunk.<br/>VALUE: " + chunkname, []));
     if (length > 0) {
         chunkn.children.push(new FileNode(curChunkStart + 8, length, "Chunk Data", "Chunk Data", []));
     }
-    chunkn.children.push(new FileNode(curChunkStart + 8 + length, 4, "Chunk CRC", "Chunk CRC", []));    
+    chunkn.children.push(new FileNode(curChunkStart + 8 + length, 4, "Chunk CRC", "4-byte Cyclic Redundancy Code calculated on the chunk type field and chunk data fields.", []));    
     global_nodetree.children.push(chunkn);
     curChunkStart = curChunkStart + 12 + length;
     if (global_theFile.size > curChunkStart) {
         //read another chunk
         readNextChunk();
     } else {
-        //finished
-        finishtreebuild();
+        finishup();
     }
+}
+
+/*********************************************************
+ * Do some final checks of the PNG file before finishing *
+ *********************************************************/
+function finishup() {
+    if (global_nodetree.children[1].name != "IHDR Chunk") {
+        global_nodetree.error = "This PNG file does not start with the expected IHDR Chunk";
+    }
+    if (global_nodetree.children[global_nodetree.children.length-1].name != "IEND Chunk") {
+        global_nodetree.error = "This PNG file does not end with the expected IEND Chunk";
+    }
+    //finished
+    finishtreebuild();
 }
