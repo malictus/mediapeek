@@ -83,6 +83,10 @@ function processChunk(chunkHeader) {
     }
     if (chunkname == "IHDR") {
         chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", "The IHDR Chunk is a fixed-size information chunk that should be the first chunk in every PNG file.", []);
+    } else if (chunkname == "IDAT") {
+        chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", "An IDAT chunk contains the actual image data. There may be more than one IDAT chunk.", []);
+     } else if (chunkname == "tEXt") {
+        chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", "A tEXt chunk contains a keyword and textual information", []);
     } else if (chunkname == "IEND") {
         chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", "The IEND Chunk is a chunk with no data, that should be the last chunk in every PNG file.", []);
     } else {
@@ -100,6 +104,7 @@ function processChunk(chunkHeader) {
         //read another chunk
         readNextChunk();
     } else {
+        //done
         finishup();
     }
 }
