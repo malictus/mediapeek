@@ -98,3 +98,44 @@ function readAlphaChunk(bytearray) {
     }
     return finalstring;
 }
+
+/********************************************************************
+ * Parse a byte array into a null terminated string                 *
+ * Will continue until the end of the array or first null character *
+ ********************************************************************/
+function readNullTerminatedString(bytearray) {
+    var view = new DataView(bytearray);
+    if (bytearray.byteLength < 1) {
+        return null;
+    }
+    var x = 0;
+    var finalstring = "";
+    while (x < bytearray.byteLength) {
+        var b = view.getUint8(x);
+        if (b == 0) {
+            return finalstring;
+        }
+        finalstring = finalstring + String.fromCharCode(b);
+        x++;
+    }
+    return finalstring;
+}
+
+/***************************************************************
+ * Parse a byte array into a simple string                     *
+ ***************************************************************/
+function readString(bytearray) {
+    var view = new DataView(bytearray);
+    if (bytearray.byteLength < 1) {
+        return null;
+    }
+    var x = 0;
+    var finalstring = "";
+    while (x < bytearray.byteLength) {
+        var b = view.getUint8(x);
+        finalstring = finalstring + String.fromCharCode(b);
+        x++;
+    }
+    return finalstring;
+}
+

@@ -8,6 +8,10 @@
 var finishtreebuild;
 //keeps track of where the currently read chunk starts
 var curChunkStart;
+//array of text chunks for file reading
+var textChunks = [];
+//keep track of which text chunk we're reading
+var curtextchunk = 0;
 
 /******************************************
  * Build the nodetree based on a PNG file *
@@ -15,6 +19,8 @@ var curChunkStart;
  ******************************************/
 function buildPNGNodeTree(treecallback) {
     finishtreebuild = treecallback;
+    textChunks = [];
+    curtextchunk = 0;
     //read header from beginning of file
     readFileSlice(0, 8, global_theFile, processfilebeginning);
 }
@@ -85,7 +91,7 @@ function processChunk(chunkHeader) {
         chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", "The IHDR Chunk is a fixed-size information chunk that should be the first chunk in every PNG file.", []);
     } else if (chunkname == "IDAT") {
         chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", "An IDAT chunk contains the actual image data. There may be more than one IDAT chunk.", []);
-     } else if (chunkname == "tEXt") {
+    } else if (chunkname == "tEXt") {
         chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", "A tEXt chunk contains a keyword and textual information", []);
     } else if (chunkname == "IEND") {
         chunkn = new FileNode(curChunkStart, 12 + length, chunkname + " Chunk", "The IEND Chunk is a chunk with no data, that should be the last chunk in every PNG file.", []);
@@ -95,7 +101,11 @@ function processChunk(chunkHeader) {
     chunkn.children.push(new FileNode(curChunkStart, 4, "Chunk Length", "A 4-byte big-endian integer representing the length of the data field for this chunk.<br/>VALUE: " + length, []));
     chunkn.children.push(new FileNode(curChunkStart + 4, 4, "Chunk Name", "Alphabetical-only 4-byte string representing the name of this chunk.<br/>VALUE: " + chunkname, []));
     if (length > 0) {
-        chunkn.children.push(new FileNode(curChunkStart + 8, length, "Chunk Data", "Chunk Data", []));
+        datanode = new FileNode(curChunkStart + 8, length, "Chunk Data", "Chunk Data", []);
+        chunkn.children.push(datanode);
+        if (chunkname == "tEXt") {
+            textChunks.push(datanode);
+        }
     }
     chunkn.children.push(new FileNode(curChunkStart + 8 + length, 4, "Chunk CRC", "4-byte Cyclic Redundancy Code calculated on the chunk type field and chunk data fields.", []));    
     global_nodetree.children.push(chunkn);
@@ -104,9 +114,51 @@ function processChunk(chunkHeader) {
         //read another chunk
         readNextChunk();
     } else {
+        readNextTextChunk();
+    }
+}
+
+/******************************
+ * Read a tEXt chunk          *
+ ******************************/
+function readNextTextChunk() {
+    if (textChunks.length == 0) {
+        finishup();
+        return;
+    }
+    if (textChunks[curtextchunk].length > 3000) {
+        //don't read text chunks that are huge
+        curtextchunk++;
+        readNextTextChunk();
+        return;
+    }
+    readFileSlice(textChunks[curtextchunk].start, textChunks[curtextchunk].start + textChunks[curtextchunk].length, global_theFile, processTextChunk);
+}
+
+/****************************
+ * Process a tEXt chunk     *
+ ****************************/
+function processTextChunk(thebytes) {
+    var keyword = readNullTerminatedString(thebytes);
+    if ( (keyword.length+1) < thebytes.byteLength) {
+        var stringvalue = readString(thebytes.slice(keyword.length+1,thebytes.byteLength));
+        alert(stringvalue);
+        //TODO - ADD ANOTHER NODE FOR THIS (SKIPPING NULL BYTE)
+        //TODO - USE https://github.com/inexorabletash/text-encoding to replace 'readString' method and use Latin 1
+        //TODO - throw error if no value field (no null terminated string)
+        //TODO - throw error if keyword more than 79 bytes
+        //TODO - do header node and iTXT nodes next
+    }
+    var keywordnode = new FileNode(textChunks[curtextchunk].start, keyword.length, "tEXt Keyword", "A keyword for this tEXt chunk.<br/>VALUE: " + keyword, []);
+    textChunks[curtextchunk].children.push(keywordnode);
+    curtextchunk++;
+    if (curtextchunk >= textChunks.length) {
         //done
         finishup();
+    } else {
+        readNextTextChunk();
     }
+    
 }
 
 /*********************************************************
